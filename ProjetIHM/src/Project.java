@@ -1,6 +1,8 @@
 import javax.swing.*;
+import javax.swing.text.MaskFormatter;
 import java.awt.*;
 import java.awt.event.*;
+import java.text.ParseException;
 
 public class Project {
 
@@ -113,7 +115,8 @@ public class Project {
         label2.setFont(new Font("Roboto", Font.ITALIC, 20));
         label2.setBorder(BorderFactory.createEmptyBorder(5, 140, 5, 0));
 
-        JTextField searchBar = new JTextField(40);
+        JTextField searchBar = new PlaceholderTextField("Search by code, title, or framer", 40);
+        searchBar.setPreferredSize(new Dimension(searchBar.getPreferredSize().width, 50));
 
         JLabel label3 = new JLabel(
                 "<html> <font size='8'>Search</font>  <br/> You can search by code, title, or framer. </html>");
@@ -121,8 +124,6 @@ public class Project {
         label3.setBorder(BorderFactory.createEmptyBorder(25, 36, 25, 10));
         label3.setOpaque(true);
         label3.setBackground(new Color(51, 40, 102));
-
-        searchBar.setPreferredSize(new Dimension(searchBar.getPreferredSize().width, 50));
 
         JButton searchButton = new JButton("Search");
 
@@ -145,10 +146,83 @@ public class Project {
     }
 
     private static JPanel createCreatePanel() {
-        JPanel createPanel = new JPanel();
+        JPanel createpanel = new JPanel(new BorderLayout());
+        JPanel adminp = new JPanel(new FlowLayout());
+        adminp.setBorder(BorderFactory.createEmptyBorder(55, 0, 5, 0));
+        createpanel.setBackground(Color.WHITE);
 
-        createPanel.setBackground(Color.GREEN);
-        return createPanel;
+        JLabel label2 = new JLabel("Here you can find the thesis archives ");
+        label2.setFont(new Font("Roboto", Font.ITALIC, 20));
+        label2.setBorder(BorderFactory.createEmptyBorder(5, 140, 5, 0));
+
+        PlaceholderTextField title = new PlaceholderTextField("Title", 40);
+        PlaceholderTextField frame = new PlaceholderTextField("Frame", 40);
+
+        JFormattedTextField dateField = createDateTextField();
+
+        PlaceholderTextField code = new PlaceholderTextField("Code", 40);
+
+        PlaceholderTextField resumePathField = new PlaceholderTextField("Resume", 31);
+        resumePathField.setEditable(false);
+
+        JButton resumeBrowseButton = new JButton("Add resume");
+        resumeBrowseButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+                int result = fileChooser.showOpenDialog(createpanel);
+
+                if (result == JFileChooser.APPROVE_OPTION) {
+
+                    resumePathField.setText(fileChooser.getSelectedFile().getAbsolutePath());
+                }
+            }
+        });
+
+        JLabel label3 = new JLabel(
+                "<html> <font size='8'>Creation</font>  <br/> You can add these by entering the title, framer, date of these, code, and resume. </html>");
+        label3.setForeground(Color.WHITE);
+        label3.setBorder(BorderFactory.createEmptyBorder(25, 36, 25, 10));
+        label3.setOpaque(true);
+        label3.setBackground(new Color(51, 40, 102));
+
+        title.setPreferredSize(new Dimension(title.getPreferredSize().width, 60));
+        frame.setPreferredSize(new Dimension(frame.getPreferredSize().width, 60));
+        dateField.setPreferredSize(new Dimension(frame.getPreferredSize().width, 60));
+        code.setPreferredSize(new Dimension(frame.getPreferredSize().width, 60));
+        resumePathField.setPreferredSize(new Dimension(frame.getPreferredSize().width - 100, 60));
+        resumeBrowseButton.setPreferredSize(new Dimension(100, 60));
+
+        JButton Add = new JButton("Add");
+        Add.setPreferredSize(new Dimension(250, title.getPreferredSize().height));
+
+        JPanel top = new JPanel(new GridLayout(2, 1, 5, 5));
+        top.add(label2, BorderLayout.PAGE_START);
+        top.add(label3, BorderLayout.CENTER);
+
+        createpanel.add(top, BorderLayout.PAGE_START);
+
+        adminp.add(title);
+        adminp.add(frame);
+        adminp.add(dateField);
+        adminp.add(code);
+        adminp.add(resumePathField);
+        adminp.add(resumeBrowseButton);
+        adminp.add(Add);
+        createpanel.add(adminp);
+
+        return createpanel;
+    }
+
+    private static JFormattedTextField createDateTextField() {
+        MaskFormatter formatter = null;
+        try {
+            formatter = new MaskFormatter("##/##/####");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        JFormattedTextField dateField = new JFormattedTextField(formatter);
+        return dateField;
     }
 
     private static JPanel createLecturePanel() {
@@ -171,7 +245,7 @@ public class Project {
         PlaceholderTextField log = new PlaceholderTextField("User Name", 40);
         PlaceholderPasswordField password = new PlaceholderPasswordField("Password", 40); // Adjusted width
         JLabel label3 = new JLabel(
-                "<html> <font size='8'>Administartion</font>  <br/> Administartion access. </html>");
+                "<html> <font size='8'>Administration</font>  <br/> Administration access. </html>");
         label3.setForeground(Color.WHITE);
         label3.setBorder(BorderFactory.createEmptyBorder(25, 36, 25, 10));
         label3.setOpaque(true);
@@ -197,7 +271,7 @@ public class Project {
         return adminpanel;
     }
 
-    static class PlaceholderTextField extends JTextField implements FocusListener {
+    private static class PlaceholderTextField extends JTextField implements FocusListener {
         private final String placeholder;
 
         PlaceholderTextField(String placeholder, int columns) {
@@ -230,7 +304,7 @@ public class Project {
         }
     }
 
-    static class PlaceholderPasswordField extends JPasswordField implements FocusListener {
+    private static class PlaceholderPasswordField extends JPasswordField implements FocusListener {
         private final String placeholder;
 
         PlaceholderPasswordField(String placeholder, int columns) {
