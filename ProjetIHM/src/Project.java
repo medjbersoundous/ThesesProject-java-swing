@@ -101,7 +101,7 @@ public class Project {
         frame.add(rightPanel, BorderLayout.CENTER);
         frame.add(leftPanel, BorderLayout.WEST);
 
-        frame.setSize(1000, 700);
+        frame.setSize(1000, 750);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }
@@ -155,17 +155,17 @@ public class Project {
         label2.setFont(new Font("Roboto", Font.ITALIC, 20));
         label2.setBorder(BorderFactory.createEmptyBorder(5, 140, 5, 0));
 
-        PlaceholderTextField title = new PlaceholderTextField("Title", 40);
-        PlaceholderTextField frame = new PlaceholderTextField("Frame", 40);
+        JTextField title = new JTextField(40);
+        JTextField frame = new JTextField(40);
 
         JFormattedTextField dateField = createDateTextField();
 
-        PlaceholderTextField code = new PlaceholderTextField("Code", 40);
+        JTextField code = new JTextField(40);
 
-        PlaceholderTextField resumePathField = new PlaceholderTextField("Resume", 31);
+        JTextField resumePathField = new JTextField(33);
         resumePathField.setEditable(false);
 
-        JButton resumeBrowseButton = new JButton("Add resume");
+        JButton resumeBrowseButton = new JButton("Add pdf");
         resumeBrowseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -173,14 +173,13 @@ public class Project {
                 int result = fileChooser.showOpenDialog(createpanel);
 
                 if (result == JFileChooser.APPROVE_OPTION) {
-
                     resumePathField.setText(fileChooser.getSelectedFile().getAbsolutePath());
                 }
             }
         });
 
         JLabel label3 = new JLabel(
-                "<html> <font size='8'>Creation</font>  <br/> You can add these by entering the title, framer, date of these, code, and resume. </html>");
+                "<html> <font size='8'>Creation</font>  <br/> You can add thesis by entering the title, framer, date of thesis, code, and resume. </html>");
         label3.setForeground(Color.WHITE);
         label3.setBorder(BorderFactory.createEmptyBorder(25, 36, 25, 10));
         label3.setOpaque(true);
@@ -191,10 +190,29 @@ public class Project {
         dateField.setPreferredSize(new Dimension(frame.getPreferredSize().width, 60));
         code.setPreferredSize(new Dimension(frame.getPreferredSize().width, 60));
         resumePathField.setPreferredSize(new Dimension(frame.getPreferredSize().width - 100, 60));
-        resumeBrowseButton.setPreferredSize(new Dimension(100, 60));
+        resumeBrowseButton.setPreferredSize(new Dimension(80, 60));
 
         JButton Add = new JButton("Add");
         Add.setPreferredSize(new Dimension(250, title.getPreferredSize().height));
+
+        Add.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                if (title.getText().isEmpty() || frame.getText().isEmpty() || dateField.getText().isEmpty()
+                        || code.getText().isEmpty() || resumePathField.getText().isEmpty()) {
+                    JOptionPane.showMessageDialog(createpanel, "Please enter data in all fields", "Incomplete Data",
+                            JOptionPane.WARNING_MESSAGE);
+                } else {
+                    // à modifier apres l'ajoute de bd
+                    System.out.println("Title: " + title.getText());
+                    System.out.println("Frame: " + frame.getText());
+                    System.out.println("Date: " + dateField.getText());
+                    System.out.println("Code: " + code.getText());
+                    System.out.println("Resume Path: " + resumePathField.getText());
+                }
+            }
+        });
 
         JPanel top = new JPanel(new GridLayout(2, 1, 5, 5));
         top.add(label2, BorderLayout.PAGE_START);
@@ -202,16 +220,25 @@ public class Project {
 
         createpanel.add(top, BorderLayout.PAGE_START);
 
-        adminp.add(title);
-        adminp.add(frame);
-        adminp.add(dateField);
-        adminp.add(code);
-        adminp.add(resumePathField);
+        adminp.add(createFieldPanel("Title:", title));
+        adminp.add(createFieldPanel("Frame:", frame));
+        adminp.add(createFieldPanel("Date :", dateField));
+        adminp.add(createFieldPanel("Code:", code));
+        adminp.add(createFieldPanel("Resume:", resumePathField));
         adminp.add(resumeBrowseButton);
         adminp.add(Add);
         createpanel.add(adminp);
 
         return createpanel;
+    }
+
+    private static JPanel createFieldPanel(String label, JComponent component) {
+        JPanel fieldPanel = new JPanel(new FlowLayout(FlowLayout.LEADING, 10, 5));
+        JLabel labelComponent = new JLabel(label);
+        labelComponent.setPreferredSize(new Dimension(60, 30));
+        fieldPanel.add(labelComponent);
+        fieldPanel.add(component);
+        return fieldPanel;
     }
 
     private static JFormattedTextField createDateTextField() {
