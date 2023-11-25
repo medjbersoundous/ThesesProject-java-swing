@@ -97,6 +97,9 @@ public class Project {
             }
         });
 
+        // ################################### LA FENETRE
+        // ###############################################
+
         frame.setLayout(new BorderLayout());
         frame.add(rightPanel, BorderLayout.CENTER);
         frame.add(leftPanel, BorderLayout.WEST);
@@ -253,9 +256,41 @@ public class Project {
     }
 
     private static JPanel createLecturePanel() {
-        JPanel lecturePanel = new JPanel();
+        JPanel lecturePanel = new JPanel(new BorderLayout());
+        JPanel lecturep = new JPanel(new FlowLayout());
+        lecturep.setBorder(BorderFactory.createEmptyBorder(15, 0, 5, 0));
+        lecturePanel.setBackground(Color.WHITE);
 
-        lecturePanel.setBackground(Color.RED);
+        JLabel label2 = new JLabel("Here you can find the thesis archives ");
+        label2.setFont(new Font("Roboto", Font.ITALIC, 20));
+        label2.setBorder(BorderFactory.createEmptyBorder(5, 140, 5, 0));
+
+        JLabel label3 = new JLabel(
+                "<html> <font size='8'>Lecture</font>  <br/> here you find the list of thesis . </html>");
+        label3.setForeground(Color.WHITE);
+        label3.setBorder(BorderFactory.createEmptyBorder(25, 36, 25, 10));
+        label3.setOpaque(true);
+        label3.setBackground(new Color(51, 40, 102));
+
+        JComboBox<String> framerComboBox = new JComboBox<>(new String[] { "Mr.Rezoug", "Mr.Gaceb", "Mr.Mokrani" });
+        JComboBox<Integer> yearComboBox = new JComboBox<>(new Integer[] { 2000, 2001, 2002, 2003, 2004, 2005, 2006,
+                2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023 });
+        JComboBox<String> levelComboBox = new JComboBox<>(new String[] { "licence", "master", "doctorat" });
+
+        JPanel top = new JPanel(new GridLayout(2, 1, 5, 5));
+        top.add(label2, BorderLayout.PAGE_START);
+        top.add(label3, BorderLayout.CENTER);
+
+        // JTabbedPane onglets = new JTabbedPane();
+
+        lecturePanel.add(top, BorderLayout.PAGE_START);
+
+        lecturep.add(createFieldPanel("Framer:", framerComboBox));
+        lecturep.add(createFieldPanel("Year:", yearComboBox));
+        lecturep.add(createFieldPanel("Level:", levelComboBox));
+
+        lecturePanel.add(lecturep);
+
         return lecturePanel;
     }
 
