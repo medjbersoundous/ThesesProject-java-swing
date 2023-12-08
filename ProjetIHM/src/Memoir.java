@@ -7,8 +7,9 @@ public class Memoir {
     private int annes ;
     private String resumer ;
     private int id_ens;
+    private byte[] pdfBytes ;
 
-    public Memoir(int id_mem, String cote, String titre, String auteur, int annes, String resumer, int id_ens) {
+    public Memoir(int id_mem, String cote, String titre, String auteur, int annes, String resumer, int id_ens , byte[] pdfBytes) {
         this.id_mem=id_mem;
         this.cote = cote;
         this.titre = titre;
@@ -16,7 +17,17 @@ public class Memoir {
         this.annes = annes;
         this.resumer = resumer;
         this.id_ens = id_ens;
+        this.pdfBytes=pdfBytes;
     }
+
+    public byte[] getPdfBytes() {
+        return pdfBytes;
+    }
+
+    public void setPdfBytes(byte[] pdfBytes) {
+        this.pdfBytes = pdfBytes;
+    }
+
     public int getId_mem() {
         return id_mem;
     }

@@ -132,8 +132,6 @@ public class Backend {
                 preparedStatement.setInt(4, m.getAnnes());
                 preparedStatement.setString(5, m.getResumer());
                 preparedStatement.setInt(6, m.getId_ens());
-
-
                 preparedStatement.executeUpdate();
 
             }
@@ -158,7 +156,9 @@ public class Backend {
                             ,resultSet.getString("auteur"),
                             resultSet.getInt("annes"),
                             resultSet.getString("resumer"),
-                            resultSet.getInt("id_ens")) ;
+                            resultSet.getInt("id_ens"),
+                            resultSet.getBytes("pdff")
+                            ) ;
                     memr.add(m);
                 }
             } catch(SQLException e ) {
@@ -192,7 +192,7 @@ public class Backend {
         try {
             Connection connection = conn();
 
-            String query = "UPDATE Memoir SET cote = ?, titre = ?, auteur = ?, annees = ?, resumer = ?, id_ens = ? WHERE id_mem = ?";
+            String query = "UPDATE Memoir SET cote = ?, titre = ?, auteur = ?, annees = ?, resumer = ?, id_ens = ?, pdff= ? WHERE id_mem = ?";
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 preparedStatement.setString(1, livre.getCote());
                 preparedStatement.setString(2, livre.getTitre());
@@ -201,6 +201,7 @@ public class Backend {
                 preparedStatement.setString(5, livre.getResumer());
                 preparedStatement.setInt(6, livre.getId_ens());
                 preparedStatement.setInt(7, livre.getId_mem());
+                preparedStatement.setBytes(8, livre.getPdfBytes());
 
                 preparedStatement.executeUpdate();
             }
@@ -249,7 +250,8 @@ public class Backend {
                                 resultSet.getString("auteur"),
                                 resultSet.getInt("annes"),
                                 resultSet.getString("resumer"),
-                                resultSet.getInt("id_ens")
+                                resultSet.getInt("id_ens"),
+                                resultSet.getBytes("pdff")
                         );
                         resultats.add(livre);
                     }
