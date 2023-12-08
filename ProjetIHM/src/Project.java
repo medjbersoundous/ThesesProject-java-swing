@@ -3,6 +3,7 @@ import javax.swing.text.MaskFormatter;
 import java.awt.*;
 import java.awt.event.*;
 import java.text.ParseException;
+import java.util.ArrayList;
 
 public class Project {
 
@@ -15,6 +16,9 @@ public class Project {
     private static JPanel favoritePanel;
 
     public Project() {
+        // N3mroo Lbackend
+        Backend bk = new Backend();
+
 
         JFrame frame = new JFrame();
         frame.setTitle("ARCHIVES");
@@ -376,7 +380,13 @@ public class Project {
         label3.setOpaque(true);
         label3.setBackground(new Color(51, 40, 102));
 
-        JComboBox<String> framerComboBox = new JComboBox<>(new String[] { "", "Mr.Rezoug", "Mr.Gaceb", "Mr.Mokrani" });
+        String[] listeNoms = new String[Backend.ens.size()];
+        int i=0;
+        for (Enseignant enseignant : Backend.ens) {
+            listeNoms[i]=(enseignant.getNom());
+            i++;
+        }
+        JComboBox<String> framerComboBox = new JComboBox<>(listeNoms);
         JComboBox<Integer> yearComboBox = new JComboBox<>(new Integer[] { null, 2000, 2001, 2002, 2003, 2004, 2005,
                 2006,
                 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023 });

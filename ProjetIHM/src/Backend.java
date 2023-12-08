@@ -1,40 +1,51 @@
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 public class Backend {
     public static List<Enseignant> ens = new ArrayList<>();
     public static List<Enseignant> filterens = new ArrayList<>();
-    public Backend() { }
-    private Connection conn () {
-        String url ="jdbc:mysql://localhost:3306/IHM" ;
-        String user ="root" ;
+    public static List<Memoir> memr = new ArrayList<>();
+    public static List<Memoir> filtermemr = new ArrayList<>();
+    public Backend() {
+        AllMemoir();
+        AllEns();
+    }
+     Connection conn () {
+        String url ="jdbc:mysql://127.0.0.1:3306/ihm" ;
+        String user ="root";
         String password ="" ;
         try {
             return DriverManager.getConnection(url, user, password);
         } catch (SQLException e) {
-
+            System.out.println(e.getMessage());
         }
         return null;
     }
 
     // $$$$$$$$$$$$$$$$$ ENSEIGNANT $$$$$$$$$$$$$$$$$$$$$$$$
+
     public void AllEns(){
         Enseignant en;
         String sql = "select * from enseignant";
-        Connection connection = conn();
-        try (
-                Statement statement = connection.createStatement();
-                ResultSet resultSet = statement.executeQuery(sql)) {
-            while (resultSet.next()) {
-                en = new Enseignant(resultSet.getInt("id") ,resultSet.getString("nom"),resultSet.getString("prenom")
-                        ,resultSet.getString("specialite")) ;
-                ens.add(en);
+        Connection con = conn();
+        if (con != null) {
+            try {
+                Statement statement = con.createStatement();
+                ResultSet resultSet = statement.executeQuery(sql);
+                while (resultSet.next()) {
+                    en = new Enseignant(resultSet.getInt("id") ,resultSet.getString("nom"),resultSet.getString("prenom")
+                            ,resultSet.getString("specialite")) ;
+                    ens.add(en);
+                }
+            } catch(SQLException e ) {
+                System.out.println("Erreur de connection : "+e.getMessage());
             }
-        } catch(SQLException e ) {
-            System.out.println("Erreur de connection : "+e.getMessage());
+            InitialiserEns();
         }
     }
 
@@ -46,11 +57,30 @@ public class Backend {
             }
         }
     }
+    public void insererEnseignant(Enseignant e) {
+            Connection connection = conn();
+
+            String query = "INSERT INTO enseignant (nom, prenom, specialite) VALUES (?, ?, ?)";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+                preparedStatement.setString(1, e.getNom());
+                preparedStatement.setString(2, e.getPrenom());
+                preparedStatement.setString(3, e.getSpecialite());
+
+                preparedStatement.executeUpdate();
+                preparedStatement.close();
+                AllEns();
+                InitialiserEns();
+                connection.close();
+            }
+         catch (SQLException ex) {
+
+        }
+    }
 
     public void InitialiserEns(){
         filterens = ens;
     }
-    public void supprimerElement(int id) {
+    public void supprimerENS(int id) {
         try {
             Connection connection = conn();
 
@@ -68,7 +98,7 @@ public class Backend {
 
         }
     }
-    public void supprimerElement(int id,String specialite) {
+    public void supprimerENS(int id,String specialite) {
         try {
             Connection connection = conn();
 
@@ -89,7 +119,61 @@ public class Backend {
 
     //$$$$$$$$$$$$$$$$$$$$$$$Memoir$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-    public void supprimerLivre(int id) {
+    public void insererMemoire( Memoir m) {
+        try {
+
+            Connection connection = conn();
+
+            String query = "INSERT INTO memoir (cote, titre, auteur, annes, resumer, id_ens) VALUES (?, ?, ?, ?, ?, ?)";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+                preparedStatement.setString(1, m.getCote());
+                preparedStatement.setString(2, m.getTitre());
+                preparedStatement.setString(3, m.getAuteur());
+                preparedStatement.setInt(4, m.getAnnes());
+                preparedStatement.setString(5, m.getResumer());
+                preparedStatement.setInt(6, m.getId_ens());
+
+
+                preparedStatement.executeUpdate();
+
+            }
+            connection.close();
+
+        } catch ( SQLException ex) {
+
+        }
+    }
+    public void AllMemoir(){
+        Memoir m;
+        String sql = "select * from Memoir";
+        Connection connection = conn();
+        if (connection != null) {
+            try (
+                    Statement statement = connection.createStatement();
+                    ResultSet resultSet = statement.executeQuery(sql)) {
+                while (resultSet.next()) {
+                    m = new Memoir(resultSet.getInt("id_mem") ,
+                            resultSet.getString("cote"),
+                            resultSet.getString("titre")
+                            ,resultSet.getString("auteur"),
+                            resultSet.getInt("annes"),
+                            resultSet.getString("resumer"),
+                            resultSet.getInt("id_ens")) ;
+                    memr.add(m);
+                }
+            } catch(SQLException e ) {
+                System.out.println("Erreur de connection : "+e.getMessage());
+            }
+
+            Initialisermemr();
+        }
+
+    }
+    public void Initialisermemr(){
+        filtermemr = memr;
+    }
+
+    public void supprimerMemoir(int id) {
         try {
             Connection connection = conn();
 
@@ -104,8 +188,7 @@ public class Backend {
         }
     }
 
-    // Méthode pour modifier un livre dans la base de données
-    public void modifierLivre(Memoir livre) {
+    public void modifierMemoir(Memoir livre) {
         try {
             Connection connection = conn();
 
@@ -126,7 +209,7 @@ public class Backend {
         }
     }
 
-    public List<Memoir> rechercherLivres(String cote, String titre, String encadreur) {
+    public List<Memoir> rechercherMemoir(String cote, String titre, String encadreur) {
         List<Memoir> resultats = new ArrayList<>();
 
         try {
