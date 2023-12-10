@@ -10,6 +10,8 @@ public class Project {
     private static boolean isOtherConnected = false;
     private static JLabel favorite;
     private static JLabel create;
+    private static JLabel proffe;
+    private static JPanel framepanel;
     private static JPanel leftPanel;
     private static JPanel createpanel;
     private static JPanel favoritePanel;
@@ -56,11 +58,17 @@ public class Project {
         admin.setFont(new Font("Roboto", Font.BOLD, 15));
         admin.setBorder(BorderFactory.createEmptyBorder(40, 30, 10, 10));
 
-        create = new JLabel("Creation", createIcon, JLabel.LEFT);
+        create = new JLabel("Theses creation", createIcon, JLabel.LEFT);
         create.setFont(new Font("Roboto", Font.BOLD, 15));
         create.setForeground(Color.WHITE);
         create.setBorder(BorderFactory.createEmptyBorder(30, 30, 10, 10));
         create.setVisible(isAdminConnected);
+
+        proffe = new JLabel("Framer management", createIcon, JLabel.LEFT);
+        proffe.setFont(new Font("Roboto", Font.BOLD, 15));
+        proffe.setForeground(Color.WHITE);
+        proffe.setBorder(BorderFactory.createEmptyBorder(30, 30, 10, 10));
+        proffe.setVisible(isAdminConnected);
 
         JLabel lecture = new JLabel("Lecture", lectureIcon, JLabel.LEFT);
         lecture.setFont(new Font("Roboto", Font.BOLD, 15));
@@ -91,6 +99,9 @@ public class Project {
         if (isAdminConnected = true) {
             leftPanel.add(create);
         }
+        if (isAdminConnected = true) {
+            leftPanel.add(proffe);
+        }
 
         leftPanel.add(favorite);
         leftPanel.setBackground(new Color(51, 40, 102));
@@ -102,6 +113,7 @@ public class Project {
         rightPanel.add(LecturePanel(), "lecture");
         rightPanel.add(OtherPanel(), "other");
         rightPanel.add(FavoritePanel(), "favorite");
+        rightPanel.add(frameCreationPanel(), "proffe");
 
         CardLayout cardLayout = (CardLayout) rightPanel.getLayout();
 
@@ -109,6 +121,13 @@ public class Project {
             @Override
             public void mouseClicked(MouseEvent e) {
                 cardLayout.show(rightPanel, "admin");
+            }
+        });
+
+        proffe.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                cardLayout.show(rightPanel, "proffe");
             }
         });
 
@@ -304,9 +323,10 @@ public class Project {
     }
 
     private static JPanel CreationPanel() {
+
         createpanel = new JPanel(new BorderLayout());
         JPanel adminp = new JPanel(new FlowLayout());
-        adminp.setBorder(BorderFactory.createEmptyBorder(55, 0, 5, 0));
+        adminp.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
         createpanel.setBackground(Color.WHITE);
 
         JLabel label2 = new JLabel("Here you can find the theses archives ");
@@ -314,14 +334,21 @@ public class Project {
         label2.setBorder(BorderFactory.createEmptyBorder(5, 140, 5, 0));
 
         JTextField title = new JTextField(40);
-        JTextField frame = new JTextField(40);
+        String[] listeNoms = new String[Backend.ens.size()];
+        int i = 0;
+        for (Enseignant enseignant : Backend.ens) {
+            listeNoms[i] = (enseignant.getNom());
+            i++;
+        }
+        JComboBox<String> Framer = new JComboBox<>(listeNoms);
 
         JFormattedTextField dateField = createDateTextField();
 
         JTextField code = new JTextField(40);
+        JTextField resume = new JTextField(40);
 
-        JTextField resumePathField = new JTextField(33);
-        resumePathField.setEditable(false);
+        JTextField pdfPathField = new JTextField(33);
+        pdfPathField.setEditable(false);
 
         JButton resumeBrowseButton = new JButton("Add pdf");
         resumeBrowseButton.addActionListener(new ActionListener() {
@@ -331,24 +358,24 @@ public class Project {
                 int result = fileChooser.showOpenDialog(createpanel);
 
                 if (result == JFileChooser.APPROVE_OPTION) {
-                    resumePathField.setText(fileChooser.getSelectedFile().getAbsolutePath());
+                    pdfPathField.setText(fileChooser.getSelectedFile().getAbsolutePath());
                 }
             }
         });
 
         JLabel label3 = new JLabel(
-                "<html> <font size='8'>Creation</font> <br/> You can add theses by entering the title, framer, date of theses, code, and resume. </html>");
+                "<html> <font size='8'>Theses creation</font> <br/> You can add theses by entering the title, Framerr, date of theses, code, and resume. </html>");
         label3.setForeground(Color.WHITE);
         label3.setBorder(BorderFactory.createEmptyBorder(25, 36, 25, 10));
         label3.setOpaque(true);
         label3.setBackground(new Color(51, 40, 102));
 
         title.setPreferredSize(new Dimension(title.getPreferredSize().width, 60));
-        frame.setPreferredSize(new Dimension(frame.getPreferredSize().width, 60));
-        dateField.setPreferredSize(new Dimension(frame.getPreferredSize().width,
-                60));
-        code.setPreferredSize(new Dimension(frame.getPreferredSize().width, 60));
-        resumePathField.setPreferredSize(new Dimension(frame.getPreferredSize().width
+        Framer.setPreferredSize(new Dimension(Framer.getPreferredSize().width, title.getPreferredSize().height));
+        dateField.setPreferredSize(new Dimension(title.getPreferredSize().width - 200, 50));
+        code.setPreferredSize(new Dimension(Framer.getPreferredSize().width, 60));
+        resume.setPreferredSize(new Dimension(120, 60));
+        pdfPathField.setPreferredSize(new Dimension(Framer.getPreferredSize().width
                 - 100, 60));
         resumeBrowseButton.setPreferredSize(new Dimension(80, 60));
 
@@ -359,19 +386,19 @@ public class Project {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                if (title.getText().isEmpty() || frame.getText().isEmpty() ||
+                if (title.getText().isEmpty() || ((CharSequence) Framer.getToolkit()).isEmpty() ||
                         dateField.getText().isEmpty()
-                        || code.getText().isEmpty() || resumePathField.getText().isEmpty()) {
+                        || code.getText().isEmpty() || pdfPathField.getText().isEmpty() || resume.getText().isEmpty()) {
                     JOptionPane.showMessageDialog(createpanel, "Please enter data in all fields",
                             "Incomplete Data",
                             JOptionPane.WARNING_MESSAGE);
                 } else {
                     // à modifier apres l'ajoute de bd
                     System.out.println("Title: " + title.getText());
-                    System.out.println("Frame: " + frame.getText());
+                    System.out.println("Framer: " + Framer.getToolkit());
                     System.out.println("Date: " + dateField.getText());
                     System.out.println("Code: " + code.getText());
-                    System.out.println("Resume Path: " + resumePathField.getText());
+                    System.out.println("pdf Path: " + pdfPathField.getText());
                 }
             }
         });
@@ -383,15 +410,123 @@ public class Project {
         createpanel.add(top, BorderLayout.PAGE_START);
 
         adminp.add(FieldPanel("Title:", title));
-        adminp.add(FieldPanel("Frame:", frame));
-        adminp.add(FieldPanel("Date :", dateField));
         adminp.add(FieldPanel("Code:", code));
-        adminp.add(FieldPanel("Resume:", resumePathField));
+        adminp.add(FieldPanel("Frame:", Framer));
+        adminp.add(FieldPanel("Date :", dateField));
+        adminp.add(FieldPanel("Resume:", resume));
+        adminp.add(FieldPanel("Pdf:", pdfPathField));
         adminp.add(resumeBrowseButton);
         adminp.add(Add);
         createpanel.add(adminp);
 
         return createpanel;
+    }
+
+    private static JPanel frameCreationPanel() {
+
+        framepanel = new JPanel(new BorderLayout());
+        JPanel adminp = new JPanel(new FlowLayout());
+        adminp.setBorder(BorderFactory.createEmptyBorder(55, 0, 5, 0));
+        framepanel.setBackground(Color.WHITE);
+
+        JLabel label2 = new JLabel("Here you can find the theses archives ");
+        label2.setFont(new Font("Roboto", Font.ITALIC, 20));
+        label2.setBorder(BorderFactory.createEmptyBorder(5, 140, 5, 0));
+
+        PlaceholderTextField Firstname = new PlaceholderTextField("First name", 40);
+        PlaceholderTextField Lastname = new PlaceholderTextField("Last name", 40);
+        JTextField specialite = new JTextField(40);
+
+        JLabel label3 = new JLabel(
+                "<html> <font size='8'>Framer management</font> <br/> You can add framer by entering his information, name, field ... <br/> you can remove or modify the information of the framer </html>");
+        label3.setForeground(Color.WHITE);
+        label3.setBorder(BorderFactory.createEmptyBorder(25, 36, 25, 10));
+        label3.setOpaque(true);
+        label3.setBackground(new Color(51, 40, 102));
+
+        Firstname.setPreferredSize(new Dimension(120, 60));
+        Lastname.setPreferredSize(new Dimension(120, 60));
+        specialite.setPreferredSize(new Dimension(120, 60));
+
+        JButton Add = new JButton("Add");
+        Add.setPreferredSize(new Dimension(250, Firstname.getPreferredSize().height));
+
+        Add.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                if (Firstname.getText().isEmpty() || Lastname.getText().isEmpty()
+                        || specialite.getText().isEmpty()) {
+                    JOptionPane.showMessageDialog(framepanel, "Please enter data in all fields",
+                            "Incomplete Data",
+                            JOptionPane.WARNING_MESSAGE);
+                } else {
+                    // à modifier apres l'ajoute de bd
+                    System.out.println("First Name: " + Firstname.getText());
+                    System.out.println("Last Name: " + Lastname.getText());
+                    System.out.println("Field: " + specialite.getText());
+
+                }
+            }
+        });
+        JPanel infoframe = new JPanel(new GridLayout(1, 2, 10, 10));
+        JPanel labels = new JPanel();
+        JLabel nom = new JLabel("nom");
+        JLabel prenom = new JLabel("prenom");
+        JLabel spec = new JLabel("specialite");
+        labels.add(nom);
+        labels.add(prenom);
+        labels.add(spec);
+
+        JButton sup = new JButton("Remove");
+        JButton modify = new JButton("Modify");
+        JPanel buttons = new JPanel();
+        buttons.add(sup);
+        buttons.add(modify);
+
+        infoframe.add(labels);
+        infoframe.add(buttons);
+
+        JButton framers = new JButton("List of existing framers");
+        framers.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SwingUtilities.invokeLater(() -> {
+
+                    framepanel.add(infoframe);
+                    framepanel.remove(adminp);
+                    adminp.removeAll();
+                    framepanel.revalidate();
+                    framepanel.repaint();
+                });
+            }
+        });
+
+        sup.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SwingUtilities.invokeLater(() -> {
+                    labels.removeAll();
+                    framepanel.revalidate();
+                    framepanel.repaint();
+                });
+            }
+        });
+
+        JPanel top = new JPanel(new GridLayout(2, 1, 5, 5));
+        top.add(label2, BorderLayout.PAGE_START);
+        top.add(label3, BorderLayout.CENTER);
+
+        framepanel.add(top, BorderLayout.PAGE_START);
+
+        adminp.add(FieldPanel("First Name:", Firstname));
+        adminp.add(FieldPanel("Last Name:", Lastname));
+        adminp.add(FieldPanel("Field :", specialite));
+        adminp.add(Add);
+        framepanel.add(framers, BorderLayout.PAGE_END);
+        framepanel.add(adminp);
+
+        return framepanel;
     }
 
     private static JPanel FieldPanel(String label, JComponent component) {
@@ -457,17 +592,17 @@ public class Project {
         lecturePanel.add(lecturep);
 
         moduleNames = new String[] {
-                "<html> <ul> <li> Gestion de stock de magasin  (Mokrani, 2010,master) </br> <font color='red' > RESUMER or PDF </font> </li> </ul> </html>",
-                "<html> <ul> <li>  Gestion de stock de magasin (gaceb, 2010,master) </br> <font color='red' > RESUMER or PDF </font> </li> </ul> </html>",
-                "<html> <ul> <li> application web pour une societe (lounas, 2020, licence)</br> <font color='red' > RESUMER or PDF </font> </li> </ul></html>",
-                "<html> <ul> <li> application mobile pour un medecin (mokrani, 2020, licence) </br> <font color='red' > RESUMER or PDF </font> </li> </ul>  </html>",
-                "<html>  <ul> <li>implemenation d'ai (rezoug, 2020, licence) </br> <font color='red' > RESUMER or PDF </font> </li> </ul> </html>",
-                "<html> <ul> <li> Calcul matriciel complexe  (mokrani, 2020, licence) </br> <font color='red' > RESUMER or PDF </font> </li> </ul> </html>",
-                "<html>  <ul> <li>Un éditeur graphique pour les RDP (mokrani, 2020, licence) </br> <font color='red' > RESUMER or PDF </font> </li> </ul>  </html>",
-                "<html> <ul> <li> Comment prédire avec des modèles de régression (mokrani, 2020, licence) </br> <font color='red' > RESUMER or PDF </font> </li> </ul> </html>",
-                "<html> <ul> <li> Calcul matriciel complexe  (mokrani, 2020, licence) </br> <font color='red' > RESUMER or PDF </font> </li> </ul> </html>",
-                "<html>  <ul> <li>Un éditeur graphique pour les RDP (mokrani, 2020, licence) </br> <font color='red' > RESUMER or PDF </font> </li> </ul>  </html>",
-                "<html> <ul> <li> Comment prédire avec des modèles de régression (mokrani, 2020, licence) </br> <font color='red' > RESUMER or PDF </font> </li> </ul> </html>",
+                "<html> <ul> <li> Gestion de stock de magasin  (Mokrani, 2010,master)  <font color='red' > RESUMER or PDF </font> </li> </ul> </html>",
+                "<html> <ul> <li>  Gestion de stock de magasin (gaceb, 2010,master)  <font color='red' > RESUMER or PDF </font> </li> </ul> </html>",
+                "<html> <ul> <li> application web pour une societe (lounas, 2020, licence) <font color='red' > RESUMER or PDF </font> </li> </ul></html>",
+                "<html> <ul> <li> application mobile pour un medecin (mokrani, 2020, licence)  <font color='red' > RESUMER or PDF </font> </li> </ul>  </html>",
+                "<html>  <ul> <li>implemenation d'ai (rezoug, 2020, licence)  <font color='red' > RESUMER or PDF </font> </li> </ul> </html>",
+                "<html> <ul> <li> Calcul matriciel complexe  (mokrani, 2020, licence)  <font color='red' > RESUMER or PDF </font> </li> </ul> </html>",
+                "<html>  <ul> <li>Un éditeur graphique pour les RDP (mokrani, 2020, licence)  <font color='red' > RESUMER or PDF </font> </li> </ul>  </html>",
+                "<html> <ul> <li> Comment prédire avec des modèles de régression (mokrani, 2020, licence)  <font color='red' > RESUMER or PDF </font> </li> </ul> </html>",
+                "<html> <ul> <li> Calcul matriciel complexe  (mokrani, 2020, licence)  <font color='red' > RESUMER or PDF </font> </li> </ul> </html>",
+                "<html>  <ul> <li>Un éditeur graphique pour les RDP (mokrani, 2020, licence)  <font color='red' > RESUMER or PDF </font> </li> </ul>  </html>",
+                "<html> <ul> <li> Comment prédire avec des modèles de régression (mokrani, 2020, licence)  <font color='red' > RESUMER or PDF </font> </li> </ul> </html>",
         };
 
         JPanel modulesPanel = new JPanel(new GridLayout(MODULES_PER_PAGE, 1, 0, 0));
@@ -627,8 +762,9 @@ public class Project {
                     isAdminConnected = true;
                     SwingUtilities.invokeLater(() -> {
                         create.setVisible(true);
-                        adminpanel.remove(adminp); // Remove login panel
-                        adminpanel.add(hey, BorderLayout.CENTER); // Add connected label
+                        proffe.setVisible(true);
+                        adminpanel.remove(adminp);
+                        adminpanel.add(hey, BorderLayout.CENTER);
                         adminpanel.add(deconnect, BorderLayout.SOUTH);
                         adminpanel.revalidate();
                         adminpanel.repaint();
@@ -638,9 +774,10 @@ public class Project {
                     isAdminConnected = false;
                     SwingUtilities.invokeLater(() -> {
                         create.setVisible(false);
-                        adminpanel.remove(hey); // Remove connected label
+                        proffe.setVisible(false);
+                        adminpanel.remove(hey);
                         adminpanel.remove(deconnect);
-                        adminpanel.add(adminp, BorderLayout.CENTER); // Add login panel
+                        adminpanel.add(adminp, BorderLayout.CENTER);
                         adminpanel.revalidate();
                         adminpanel.repaint();
                     });
