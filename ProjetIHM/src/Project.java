@@ -470,22 +470,39 @@ public class Project {
             }
         });
         JPanel infoframe = new JPanel(new GridLayout(1, 2, 10, 10));
-        JPanel labels = new JPanel();
-        JLabel nom = new JLabel("nom");
-        JLabel prenom = new JLabel("prenom");
-        JLabel spec = new JLabel("specialite");
-        labels.add(nom);
-        labels.add(prenom);
-        labels.add(spec);
+        JPanel labelPanel = new JPanel();
+        labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.Y_AXIS));
+        Enseignant[] listeNoms = new Enseignant[Backend.ens.size()];
+        int i = 0;
+        for (Enseignant enseignant : Backend.ens) {
+            listeNoms[i] = new Enseignant(enseignant.getId(), enseignant.getNom(), enseignant.getPrenom(),
+                    enseignant.getSpecialite());
+            i++;
+        }
+        for (Enseignant enseignantInfo : listeNoms) {
+            String labelText = "ID" + enseignantInfo.getId() + "Nom: " + enseignantInfo.getNom() + " | Prenom: "
+                    + enseignantInfo.getPrenom()
+                    + " | Specialite: " + enseignantInfo.getSpecialite();
+            JLabel infoLabel = new JLabel(labelText);
 
-        JButton sup = new JButton("Remove");
-        JButton modify = new JButton("Modify");
-        JPanel buttons = new JPanel();
-        buttons.add(sup);
-        buttons.add(modify);
+            JButton sup = new JButton("Remove");
+            JButton modify = new JButton("Modify");
+            labelPanel.add(infoLabel);
+            labelPanel.add(sup);
+            labelPanel.add(modify);
 
-        infoframe.add(labels);
-        infoframe.add(buttons);
+            // Add some spacing between entries
+            labelPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        }
+
+        // JButton sup = new JButton("Remove");
+        // JButton modify = new JButton("Modify");
+        // JPanel buttons = new JPanel();
+        // buttons.add(sup);
+        // buttons.add(modify);
+
+        infoframe.add(labelPanel);
+        // infoframe.add(buttons);
 
         JButton framers = new JButton("List of existing framers");
         framers.addActionListener(new ActionListener() {
@@ -502,16 +519,16 @@ public class Project {
             }
         });
 
-        sup.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                SwingUtilities.invokeLater(() -> {
-                    labels.removeAll();
-                    framepanel.revalidate();
-                    framepanel.repaint();
-                });
-            }
-        });
+        // sup.addActionListener(new ActionListener() {
+        // @Override
+        // public void actionPerformed(ActionEvent e) {
+        // SwingUtilities.invokeLater(() -> {
+        // labelPanel.removeAll();
+        // framepanel.revalidate();
+        // framepanel.repaint();
+        // });
+        // }
+        // });
 
         JPanel top = new JPanel(new GridLayout(2, 1, 5, 5));
         top.add(label2, BorderLayout.PAGE_START);
@@ -592,7 +609,7 @@ public class Project {
         lecturePanel.add(lecturep);
 
         moduleNames = new String[] {
-                "<html> <ul> <li> Gestion de stock de magasin  (Mokrani, 2010,master)  <font color='red' > RESUMER or PDF </font> </li> </ul> </html>",
+                "<html> <ul> <li> Gestion de stock de magasin  (Mokrani, 2010,master)  <font color='red' > RESUMER or PDF </font> </li> </ul> </html> ",
                 "<html> <ul> <li>  Gestion de stock de magasin (gaceb, 2010,master)  <font color='red' > RESUMER or PDF </font> </li> </ul> </html>",
                 "<html> <ul> <li> application web pour une societe (lounas, 2020, licence) <font color='red' > RESUMER or PDF </font> </li> </ul></html>",
                 "<html> <ul> <li> application mobile pour un medecin (mokrani, 2020, licence)  <font color='red' > RESUMER or PDF </font> </li> </ul>  </html>",
