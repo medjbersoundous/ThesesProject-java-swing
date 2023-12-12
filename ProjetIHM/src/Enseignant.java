@@ -3,7 +3,6 @@ public class Enseignant implements Comparable<Enseignant> {
     private String nom;
     private String prenom ;
     private String specialite ;
-
     public Enseignant(int id, String nom, String prenom, String specialite) {
         this.id = id;
         this.nom = nom;

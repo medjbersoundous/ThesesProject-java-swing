@@ -1,8 +1,15 @@
 import javax.swing.*;
+import javax.swing.text.Document;
 import javax.swing.text.MaskFormatter;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.text.ParseException;
+
+//import com.itexxtpdf.kernel.pdf.PdfDocument;
+//import com.itextpdf.kernel.pdf.PdfWriter;
 
 public class Project {
 
@@ -262,7 +269,7 @@ public class Project {
         otherp.setBorder(BorderFactory.createEmptyBorder(55, 0, 5, 0));
         otherpanel.setBackground(Color.WHITE);
 
-        JLabel label2 = new JLabel("Here you can find the theses archives ");
+        JLabel label2 = new JLabel("Here you can find the theses archives");
         label2.setFont(new Font("Roboto", Font.ITALIC, 20));
         label2.setBorder(BorderFactory.createEmptyBorder(5, 140, 5, 0));
 
@@ -346,21 +353,38 @@ public class Project {
 
         JTextField code = new JTextField(40);
         JTextField resume = new JTextField(40);
+        JTextField auteur = new JTextField(40);
 
         JTextField pdfPathField = new JTextField(33);
         pdfPathField.setEditable(false);
+        String[] level = { "master", "licence", "ingeniorat" };
+
+        JComboBox<String> niveau = new JComboBox<>(level);
 
         JButton resumeBrowseButton = new JButton("Add pdf");
+
+        Memoir pdfByteArray = new Memoir();
         resumeBrowseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JFileChooser fileChooser = new JFileChooser();
+                JFileChooser fileChooser = new JFileChooser(".pdf");
+                fileChooser.showOpenDialog(fileChooser);
+                File selectedFile = fileChooser.getSelectedFile();
                 int result = fileChooser.showOpenDialog(createpanel);
 
                 if (result == JFileChooser.APPROVE_OPTION) {
                     pdfPathField.setText(fileChooser.getSelectedFile().getAbsolutePath());
+                    try (FileInputStream fis = new FileInputStream(selectedFile)) {
+                        byte[] byteArray = new byte[(int) selectedFile.length()];
+                        fis.read(byteArray);
+                        pdfByteArray.setPdfBytes(byteArray);
+                        // Utilisez le tableau de bytes (pdfByteArray) comme nécessaire
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
+
         });
 
         JLabel label3 = new JLabel(
@@ -370,14 +394,15 @@ public class Project {
         label3.setOpaque(true);
         label3.setBackground(new Color(51, 40, 102));
 
-        title.setPreferredSize(new Dimension(title.getPreferredSize().width, 60));
+        title.setPreferredSize(new Dimension(title.getPreferredSize().width, 55));
+        auteur.setPreferredSize(new Dimension(title.getPreferredSize().width, 55));
         Framer.setPreferredSize(new Dimension(Framer.getPreferredSize().width, title.getPreferredSize().height));
-        dateField.setPreferredSize(new Dimension(title.getPreferredSize().width - 200, 50));
-        code.setPreferredSize(new Dimension(Framer.getPreferredSize().width, 60));
-        resume.setPreferredSize(new Dimension(120, 60));
+        dateField.setPreferredSize(new Dimension(70, 55));
+        code.setPreferredSize(new Dimension(Framer.getPreferredSize().width, 55));
+        resume.setPreferredSize(new Dimension(120, 55));
         pdfPathField.setPreferredSize(new Dimension(Framer.getPreferredSize().width
-                - 100, 60));
-        resumeBrowseButton.setPreferredSize(new Dimension(80, 60));
+                - 100, 55));
+        resumeBrowseButton.setPreferredSize(new Dimension(80, 55));
 
         JButton Add = new JButton("Add");
         Add.setPreferredSize(new Dimension(250, title.getPreferredSize().height));
@@ -385,8 +410,7 @@ public class Project {
         Add.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
-                if (title.getText().isEmpty() || ((CharSequence) Framer.getToolkit()).isEmpty() ||
+                if (title.getText().isEmpty() ||
                         dateField.getText().isEmpty()
                         || code.getText().isEmpty() || pdfPathField.getText().isEmpty() || resume.getText().isEmpty()) {
                     JOptionPane.showMessageDialog(createpanel, "Please enter data in all fields",
@@ -394,11 +418,17 @@ public class Project {
                             JOptionPane.WARNING_MESSAGE);
                 } else {
                     // à modifier apres l'ajoute de bd
-                    System.out.println("Title: " + title.getText());
-                    System.out.println("Framer: " + Framer.getToolkit());
-                    System.out.println("Date: " + dateField.getText());
-                    System.out.println("Code: " + code.getText());
-                    System.out.println("pdf Path: " + pdfPathField.getText());
+                    Backend m = new Backend();
+                    int i = 0;
+                    for (Enseignant en : Backend.ens) {
+                        if (Framer.getSelectedIndex() == i) {
+                            m.insererMemoire(code.getText(), title.getText(), auteur.getText(),
+                                    /* Integer.parseInt(dateField.getText()) */2044, resume.getText(), en.getId(),
+                                    pdfByteArray.getPdfBytes(), niveau.getSelectedItem().toString());
+                            break;
+                        }
+                        i++;
+                    }
                 }
             }
         });
@@ -413,6 +443,8 @@ public class Project {
         adminp.add(FieldPanel("Code:", code));
         adminp.add(FieldPanel("Frame:", Framer));
         adminp.add(FieldPanel("Date :", dateField));
+        adminp.add(FieldPanel("Level", niveau));
+        adminp.add(FieldPanel("Auteur:", auteur));
         adminp.add(FieldPanel("Resume:", resume));
         adminp.add(FieldPanel("Pdf:", pdfPathField));
         adminp.add(resumeBrowseButton);
@@ -462,10 +494,9 @@ public class Project {
                             JOptionPane.WARNING_MESSAGE);
                 } else {
                     // à modifier apres l'ajoute de bd
-                    System.out.println("First Name: " + Firstname.getText());
-                    System.out.println("Last Name: " + Lastname.getText());
-                    System.out.println("Field: " + specialite.getText());
 
+                    Backend b = new Backend();
+                    b.insererEnseignant(Firstname.getText(), Lastname.getText(), specialite.getText());
                 }
             }
         });
@@ -490,16 +521,26 @@ public class Project {
             labelPanel.add(infoLabel);
             labelPanel.add(sup);
             labelPanel.add(modify);
+            sup.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    Backend b = new Backend();
+                    b.supprimerENS(enseignantInfo.getId());
+
+                    SwingUtilities.invokeLater(() -> {
+                        labelPanel.remove(infoLabel);
+                        labelPanel.remove(sup);
+                        labelPanel.remove(modify);
+
+                        framepanel.revalidate();
+                        framepanel.repaint();
+                    });
+                }
+            });
 
             // Add some spacing between entries
             labelPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         }
-
-        // JButton sup = new JButton("Remove");
-        // JButton modify = new JButton("Modify");
-        // JPanel buttons = new JPanel();
-        // buttons.add(sup);
-        // buttons.add(modify);
 
         infoframe.add(labelPanel);
         // infoframe.add(buttons);
@@ -518,17 +559,6 @@ public class Project {
                 });
             }
         });
-
-        // sup.addActionListener(new ActionListener() {
-        // @Override
-        // public void actionPerformed(ActionEvent e) {
-        // SwingUtilities.invokeLater(() -> {
-        // labelPanel.removeAll();
-        // framepanel.revalidate();
-        // framepanel.repaint();
-        // });
-        // }
-        // });
 
         JPanel top = new JPanel(new GridLayout(2, 1, 5, 5));
         top.add(label2, BorderLayout.PAGE_START);
@@ -558,7 +588,7 @@ public class Project {
     private static JFormattedTextField createDateTextField() {
         MaskFormatter formatter = null;
         try {
-            formatter = new MaskFormatter("##/##/####");
+            formatter = new MaskFormatter("####");
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -607,20 +637,23 @@ public class Project {
         lecturep.add(FieldPane("Level:", levelComboBox));
 
         lecturePanel.add(lecturep);
+        String[] listeMemoir = new String[Backend.memr.size()];
+        int j = 0;
 
-        moduleNames = new String[] {
-                "<html> <ul> <li> Gestion de stock de magasin  (Mokrani, 2010,master)  <font color='red' > RESUMER or PDF </font> </li> </ul> </html> ",
-                "<html> <ul> <li>  Gestion de stock de magasin (gaceb, 2010,master)  <font color='red' > RESUMER or PDF </font> </li> </ul> </html>",
-                "<html> <ul> <li> application web pour une societe (lounas, 2020, licence) <font color='red' > RESUMER or PDF </font> </li> </ul></html>",
-                "<html> <ul> <li> application mobile pour un medecin (mokrani, 2020, licence)  <font color='red' > RESUMER or PDF </font> </li> </ul>  </html>",
-                "<html>  <ul> <li>implemenation d'ai (rezoug, 2020, licence)  <font color='red' > RESUMER or PDF </font> </li> </ul> </html>",
-                "<html> <ul> <li> Calcul matriciel complexe  (mokrani, 2020, licence)  <font color='red' > RESUMER or PDF </font> </li> </ul> </html>",
-                "<html>  <ul> <li>Un éditeur graphique pour les RDP (mokrani, 2020, licence)  <font color='red' > RESUMER or PDF </font> </li> </ul>  </html>",
-                "<html> <ul> <li> Comment prédire avec des modèles de régression (mokrani, 2020, licence)  <font color='red' > RESUMER or PDF </font> </li> </ul> </html>",
-                "<html> <ul> <li> Calcul matriciel complexe  (mokrani, 2020, licence)  <font color='red' > RESUMER or PDF </font> </li> </ul> </html>",
-                "<html>  <ul> <li>Un éditeur graphique pour les RDP (mokrani, 2020, licence)  <font color='red' > RESUMER or PDF </font> </li> </ul>  </html>",
-                "<html> <ul> <li> Comment prédire avec des modèles de régression (mokrani, 2020, licence)  <font color='red' > RESUMER or PDF </font> </li> </ul> </html>",
-        };
+        Enseignant en = null;
+        for (Memoir mrm : Backend.memr) {
+            for (Enseignant personne : Backend.ens) {
+                if (personne.getId() == mrm.getId_ens()) {
+                    en = personne;
+                    break;
+                }
+            }
+            listeMemoir[j] = "<html> <ul> <li> " + mrm.getTitre() + "(" + en.getNom() + "," + mrm.getAnnes() + ","
+                    + mrm.getNiveau()
+                    + ")  <font color='red' > RESUMER or PDF </font> </li> </ul> </html>";
+            j++;
+        }
+        moduleNames = listeMemoir;
 
         JPanel modulesPanel = new JPanel(new GridLayout(MODULES_PER_PAGE, 1, 0, 0));
         modulesPanel.setBorder(BorderFactory.createEmptyBorder(40, 0, 0, 0));
@@ -634,7 +667,7 @@ public class Project {
             }
         });
 
-        lecturep.add(modulesPanel, BorderLayout.PAGE_START);
+        lecturep.add(modulesPanel);
         loadModules(modulesPanel, currentPage);
 
         JButton nextButton = new JButton("Next");
@@ -645,6 +678,25 @@ public class Project {
                 loadModules(modulesPanel, currentPage);
             }
         });
+
+        // if (Backend.memr.get(10) != null) {
+        // Memoir result = Backend.memr.get(10);
+        // // Récupérer le tableau de bytes depuis la colonne PDF
+        // byte[] pdfBytes = result.getPdfBytes();
+
+        // // Convertir le tableau de bytes en un fichier PDF
+        // // try (FileOutputStream fos = new
+        // FileOutputStream(result.getTitre()+".pdf");
+        // // Document document = new Document()) {
+        // // // Écrire le tableau de bytes dans le fichier PDF
+        // // PdfWriter.getInstance(document, fos);
+        // // document.open();
+        // // document.add(pdfBytes);
+        // // }
+        // System.out.println("Fichier PDF créé avec succès !");
+        // } else {
+        // System.out.println("Aucun résultat trouvé.");
+        // }
 
         JButton previousButton = new JButton("Previous");
         previousButton.addActionListener(new ActionListener() {
