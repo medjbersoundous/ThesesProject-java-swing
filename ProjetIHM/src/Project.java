@@ -678,10 +678,13 @@ public class Project {
         top.add(label3, BorderLayout.CENTER);
 
         lecturePanel.add(top, BorderLayout.PAGE_START);
+        JPanel combo = new JPanel(new GridLayout(2, 2, 1, 1));
 
-        lecturep.add(FieldPane("Framer:", framerComboBox));
-        lecturep.add(FieldPane("Year:", yearComboBox));
-        lecturep.add(FieldPane("Level:", levelComboBox));
+        combo.add(FieldPane("Framer:", framerComboBox));
+        combo.add(FieldPane("Year:", yearComboBox));
+        combo.add(FieldPane("Level:", levelComboBox));
+
+        lecturep.add(combo);
 
         lecturePanel.add(lecturep);
         String[] listeMemoir = new String[Backend.memr.size()];
