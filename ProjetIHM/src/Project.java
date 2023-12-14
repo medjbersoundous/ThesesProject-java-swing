@@ -14,14 +14,11 @@ import java.text.ParseException;
 public class Project {
 
     private static boolean isAdminConnected = false;
-    private static boolean isOtherConnected = false;
-    private static JLabel favorite;
     private static JLabel create;
     private static JLabel proffe;
     private static JPanel framepanel;
     private static JPanel leftPanel;
     private static JPanel createpanel;
-    private static JPanel favoritePanel;
     private static final int MODULES_PER_PAGE = 5;
     private int currentPage = 0;
     private String[] moduleNames;
@@ -57,9 +54,6 @@ public class Project {
         ImageIcon lectureIcon = new ImageIcon(new ImageIcon("/Users/no/IHM/ProjetIHM/src/asset/lecture.png").getImage()
                 .getScaledInstance(30, 30, Image.SCALE_SMOOTH));
 
-        ImageIcon otherIcon = new ImageIcon(new ImageIcon("/Users/no/IHM/ProjetIHM/src/asset/network.png").getImage()
-                .getScaledInstance(30, 30, Image.SCALE_SMOOTH));
-
         JLabel admin = new JLabel("Administration", adminIcon, JLabel.LEFT);
         admin.setForeground(Color.WHITE);
         admin.setFont(new Font("Roboto", Font.BOLD, 15));
@@ -87,20 +81,8 @@ public class Project {
         search.setFont(new Font("Roboto", Font.BOLD, 15));
         search.setBorder(BorderFactory.createEmptyBorder(30, 30, 10, 10));
 
-        JLabel other = new JLabel("other", otherIcon, JLabel.LEFT);
-        other.setForeground(Color.WHITE);
-        other.setFont(new Font("Roboto", Font.BOLD, 15));
-        other.setBorder(BorderFactory.createEmptyBorder(30, 30, 10, 10));
-
-        favorite = new JLabel("favorite", otherIcon, JLabel.LEFT);
-        favorite.setForeground(Color.WHITE);
-        favorite.setFont(new Font("Roboto", Font.BOLD, 15));
-        favorite.setBorder(BorderFactory.createEmptyBorder(30, 30, 10, 10));
-        favorite.setVisible(isOtherConnected);
-
         leftPanel.add(label);
         leftPanel.add(admin);
-        leftPanel.add(other);
         leftPanel.add(search);
         leftPanel.add(lecture);
         if (isAdminConnected = true) {
@@ -110,7 +92,6 @@ public class Project {
             leftPanel.add(proffe);
         }
 
-        leftPanel.add(favorite);
         leftPanel.setBackground(new Color(51, 40, 102));
 
         JPanel rightPanel = new JPanel(new CardLayout());
@@ -118,8 +99,6 @@ public class Project {
         rightPanel.add(CreationPanel(), "create");
         rightPanel.add(AdminPanel(), "admin");
         rightPanel.add(LecturePanel(), "lecture");
-        rightPanel.add(OtherPanel(), "other");
-        rightPanel.add(FavoritePanel(), "favorite");
         rightPanel.add(frameCreationPanel(), "proffe");
 
         CardLayout cardLayout = (CardLayout) rightPanel.getLayout();
@@ -151,23 +130,11 @@ public class Project {
                 cardLayout.show(rightPanel, "create");
             }
         });
-        other.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                cardLayout.show(rightPanel, "other");
-            }
-        });
 
         lecture.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 cardLayout.show(rightPanel, "lecture");
-            }
-        });
-        favorite.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                cardLayout.show(rightPanel, "favorite");
             }
         });
 
@@ -261,72 +228,6 @@ public class Project {
         });
 
         return searchPanel;
-    }
-
-    private static JPanel OtherPanel() {
-        JPanel otherpanel = new JPanel(new BorderLayout());
-        JPanel otherp = new JPanel(new FlowLayout());
-        otherp.setBorder(BorderFactory.createEmptyBorder(55, 0, 5, 0));
-        otherpanel.setBackground(Color.WHITE);
-
-        JLabel label2 = new JLabel("Here you can find the theses archives");
-        label2.setFont(new Font("Roboto", Font.ITALIC, 20));
-        label2.setBorder(BorderFactory.createEmptyBorder(5, 140, 5, 0));
-
-        PlaceholderTextField log = new PlaceholderTextField("Enter your account's name", 40);
-        PlaceholderPasswordField password = new PlaceholderPasswordField("Password", 40);
-        JLabel label3 = new JLabel(
-                "<html> <font size='8'>Other's Acces</font>  <br/> others access. </html>");
-        label3.setForeground(Color.WHITE);
-        label3.setBorder(BorderFactory.createEmptyBorder(25, 36, 25, 10));
-        label3.setOpaque(true);
-        label3.setBackground(new Color(51, 40, 102));
-
-        log.setPreferredSize(new Dimension(log.getPreferredSize().width, 60));
-        password.setPreferredSize(new Dimension(password.getPreferredSize().width, 60));
-
-        JButton connect = new JButton("Connect");
-        connect.setPreferredSize(new Dimension(250, log.getPreferredSize().height));
-        JLabel welcome = new JLabel("You are connected");
-        welcome.setHorizontalAlignment(SwingConstants.CENTER);
-
-        connect.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String username = log.getText();
-                String enteredPassword = new String(password.getPassword());
-
-                // a modifié apres l'ajoute de la base de donnee
-                if (username.equals("soundous") && enteredPassword.equals("snds")) {
-                    isOtherConnected = true;
-                    SwingUtilities.invokeLater(() -> favorite.setVisible(true));
-                    System.out.println("welcome ");
-                    otherpanel.add(welcome, BorderLayout.CENTER);
-                    otherpanel.remove(otherp);
-                    otherpanel.revalidate();
-                    otherpanel.repaint();
-
-                } else {
-                    isOtherConnected = false;
-                    SwingUtilities.invokeLater(() -> favorite.setVisible(false));
-                    JOptionPane.showMessageDialog(null, "invalid account", "incorrect info",
-                            JOptionPane.WARNING_MESSAGE);
-                }
-            }
-        });
-
-        JPanel top = new JPanel(new GridLayout(2, 1, 5, 5));
-        top.add(label2, BorderLayout.PAGE_START);
-        top.add(label3, BorderLayout.CENTER);
-
-        otherpanel.add(top, BorderLayout.PAGE_START);
-
-        otherp.add(log);
-        otherp.add(password);
-        otherp.add(connect);
-        otherpanel.add(otherp);
-
-        return otherpanel;
     }
 
     private static JPanel CreationPanel() {
@@ -709,15 +610,6 @@ public class Project {
         JPanel modulesPanel = new JPanel(new GridLayout(MODULES_PER_PAGE, 1, 0, 0));
         modulesPanel.setBorder(BorderFactory.createEmptyBorder(40, 0, 0, 0));
 
-        yearComboBox.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED) {
-                    filterModulesByYear((Integer) yearComboBox.getSelectedItem(), modulesPanel);
-                }
-            }
-        });
-
         for (String label : listeMemoir) {
             JLabel moduleLabel = new JLabel(label);
             modulesPanel.add(moduleLabel);
@@ -751,6 +643,14 @@ public class Project {
         navigationPanel.add(nextButton);
         lecturePanel.add(navigationPanel, BorderLayout.SOUTH);
 
+        yearComboBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    filterModulesByYear((Integer) yearComboBox.getSelectedItem(), modulesPanel);
+                }
+            }
+        });
         return lecturePanel;
     }
 
@@ -792,34 +692,6 @@ public class Project {
         panel.add(fieldLabel);
         panel.add(component);
         return panel;
-    }
-
-    private static JPanel FavoritePanel() {
-        favoritePanel = new JPanel(new BorderLayout());
-        JPanel favpanel = new JPanel(new FlowLayout());
-        favpanel.setBorder(BorderFactory.createEmptyBorder(15, 0, 5, 0));
-        favoritePanel.setBackground(Color.WHITE);
-
-        JLabel label2 = new JLabel("Here you can find the theses archives ");
-        label2.setFont(new Font("Roboto", Font.ITALIC, 20));
-        label2.setBorder(BorderFactory.createEmptyBorder(5, 140, 5, 0));
-
-        JLabel label3 = new JLabel(
-                "<html> <font size='8'>Favorite List</font>  <br/> here you find your favorite list . </html>");
-        label3.setForeground(Color.WHITE);
-        label3.setBorder(BorderFactory.createEmptyBorder(25, 36, 25, 10));
-        label3.setOpaque(true);
-        label3.setBackground(new Color(51, 40, 102));
-
-        JLabel label = new JLabel("favorite list");
-        JPanel top = new JPanel(new GridLayout(2, 1, 5, 5));
-        top.add(label2, BorderLayout.PAGE_START);
-        top.add(label3, BorderLayout.CENTER);
-        favoritePanel.add(top, BorderLayout.PAGE_START);
-        favpanel.add(FieldPanel("favorite:", label));
-        favoritePanel.add(favpanel);
-
-        return favoritePanel;
     }
 
     private static JPanel AdminPanel() {
