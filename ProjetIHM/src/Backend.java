@@ -102,14 +102,17 @@ public class Backend {
         }
     }
 
-    public void updateENS(int id, String specialite) {
+    public void updateENS(int id, String specialite, String nom, String prenom) {
         try {
             Connection connection = conn();
 
-            String query = "UPDATE enseignant SET specialite = ? WHERE id = ?";
+            String query = "UPDATE enseignant SET specialite = ?, nom = ?, prenom = ? WHERE id = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, specialite);
-            preparedStatement.setInt(2, id);
+            preparedStatement.setString(2, nom);
+            preparedStatement.setString(3, prenom);
+            preparedStatement.setInt(4, id);
+            preparedStatement.executeUpdate();
 
             preparedStatement.executeUpdate();
 
@@ -117,7 +120,7 @@ public class Backend {
             connection.close();
 
         } catch (SQLException ex) {
-
+            ex.printStackTrace();
         }
     }
 

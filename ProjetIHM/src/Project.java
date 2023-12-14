@@ -423,12 +423,20 @@ public class Project {
                     for (Enseignant en : Backend.ens) {
                         if (Framer.getSelectedIndex() == i) {
                             m.insererMemoire(code.getText(), title.getText(), auteur.getText(),
-                                    /* Integer.parseInt(dateField.getText()) */2044, resume.getText(), en.getId(),
+                                    Integer.parseInt(dateField.getText()), resume.getText(), en.getId(),
                                     pdfByteArray.getPdfBytes(), niveau.getSelectedItem().toString());
                             break;
                         }
                         i++;
                     }
+                    title.setText("");
+                    auteur.setText("");
+                    dateField.setText("");
+                    code.setText("");
+                    resume.setText("");
+                    JOptionPane.showMessageDialog(framepanel, "thesis added",
+                            "added succesfully",
+                            JOptionPane.INFORMATION_MESSAGE);
                 }
             }
         });
@@ -455,7 +463,6 @@ public class Project {
     }
 
     private static JPanel frameCreationPanel() {
-
         framepanel = new JPanel(new BorderLayout());
         JPanel adminp = new JPanel(new FlowLayout());
         adminp.setBorder(BorderFactory.createEmptyBorder(55, 0, 5, 0));
@@ -493,14 +500,21 @@ public class Project {
                             "Incomplete Data",
                             JOptionPane.WARNING_MESSAGE);
                 } else {
-                    // à modifier apres l'ajoute de bd
 
                     Backend b = new Backend();
                     b.insererEnseignant(Firstname.getText(), Lastname.getText(), specialite.getText());
                 }
+                Firstname.setText("");
+                Lastname.setText("");
+                specialite.setText("");
+                JOptionPane.showMessageDialog(framepanel, "framer added",
+                        "added succesfully",
+                        JOptionPane.INFORMATION_MESSAGE);
             }
         });
         JPanel infoframe = new JPanel(new GridLayout(1, 2, 10, 10));
+        JScrollPane scrollPane = new JScrollPane(infoframe);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         JPanel labelPanel = new JPanel();
         labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.Y_AXIS));
         Enseignant[] listeNoms = new Enseignant[Backend.ens.size()];
@@ -510,15 +524,18 @@ public class Project {
                     enseignant.getSpecialite());
             i++;
         }
-        for (Enseignant enseignantInfo : listeNoms) {
-            String labelText = "ID" + enseignantInfo.getId() + "Nom: " + enseignantInfo.getNom() + " | Prenom: "
-                    + enseignantInfo.getPrenom()
-                    + " | Specialite: " + enseignantInfo.getSpecialite();
-            JLabel infoLabel = new JLabel(labelText);
 
+        for (Enseignant enseignantInfo : listeNoms) {
+
+            JTextField nomField = new JTextField("Nom: " + enseignantInfo.getNom());
+            JTextField prenomField = new JTextField("Prenom: " + enseignantInfo.getPrenom());
+            JTextField specialiteField = new JTextField("Specialite: " + enseignantInfo.getSpecialite());
             JButton sup = new JButton("Remove");
             JButton modify = new JButton("Modify");
-            labelPanel.add(infoLabel);
+
+            labelPanel.add(nomField);
+            labelPanel.add(prenomField);
+            labelPanel.add(specialiteField);
             labelPanel.add(sup);
             labelPanel.add(modify);
             sup.addActionListener(new ActionListener() {
@@ -528,30 +545,57 @@ public class Project {
                     b.supprimerENS(enseignantInfo.getId());
 
                     SwingUtilities.invokeLater(() -> {
-                        labelPanel.remove(infoLabel);
+
+                        labelPanel.remove(nomField);
+                        labelPanel.remove(prenomField);
+                        labelPanel.remove(specialiteField);
                         labelPanel.remove(sup);
                         labelPanel.remove(modify);
-
                         framepanel.revalidate();
                         framepanel.repaint();
                     });
                 }
             });
+            modify.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
 
-            // Add some spacing between entries
+                    enseignantInfo.setNom(nomField.getText().substring(5));
+                    enseignantInfo.setPrenom(prenomField.getText().substring(8));
+                    enseignantInfo.setSpecialite(specialiteField.getText().substring(12));
+                    Backend b = new Backend();
+                    b.updateENS(enseignantInfo.getId(), enseignantInfo.getSpecialite(), enseignantInfo.getNom(),
+                            enseignantInfo.getPrenom());
+                    framepanel.revalidate();
+                    framepanel.repaint();
+                    JOptionPane.showMessageDialog(framepanel, "modification succefully",
+                            "changing succesfully",
+                            JOptionPane.INFORMATION_MESSAGE);
+
+                }
+            });
+
             labelPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         }
 
         infoframe.add(labelPanel);
-        // infoframe.add(buttons);
+        JButton back = new JButton("previous");
+        back.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                SwingUtilities.invokeLater(() -> {
+                    framepanel.remove(infoframe);
+                    framepanel.add(adminp);
+                });
+            }
+        });
 
         JButton framers = new JButton("List of existing framers");
         framers.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 SwingUtilities.invokeLater(() -> {
-
-                    framepanel.add(infoframe);
+                    framepanel.add(scrollPane);
                     framepanel.remove(adminp);
                     adminp.removeAll();
                     framepanel.revalidate();
@@ -570,7 +614,10 @@ public class Project {
         adminp.add(FieldPanel("Last Name:", Lastname));
         adminp.add(FieldPanel("Field :", specialite));
         adminp.add(Add);
-        framepanel.add(framers, BorderLayout.PAGE_END);
+        JPanel south = new JPanel(new GridLayout(1, 2, 10, 10));
+        south.add(back);
+        south.add(framers);
+        framepanel.add(south, BorderLayout.PAGE_END);
         framepanel.add(adminp);
 
         return framepanel;
@@ -648,9 +695,10 @@ public class Project {
                     break;
                 }
             }
-            listeMemoir[j] = "<html> <ul> <li> " + mrm.getTitre() + "(" + en.getNom() + "," + mrm.getAnnes() + ","
-                    + mrm.getNiveau()
-                    + ")  <font color='red' > RESUMER or PDF </font> </li> </ul> </html>";
+            JLabel label = new JLabel(
+                    "<html> <ul> <li> " + mrm.getTitre() + "(" + en.getNom() + "," + mrm.getAnnes() + ","
+                            + mrm.getNiveau() + ")  <font color='red' > Resume </font> </li> </ul> </html>");
+            listeMemoir[j] = label.getText();
             j++;
         }
         moduleNames = listeMemoir;
@@ -667,6 +715,11 @@ public class Project {
             }
         });
 
+        for (String label : listeMemoir) {
+            JLabel moduleLabel = new JLabel(label);
+            modulesPanel.add(moduleLabel);
+        }
+
         lecturep.add(modulesPanel);
         loadModules(modulesPanel, currentPage);
 
@@ -678,25 +731,6 @@ public class Project {
                 loadModules(modulesPanel, currentPage);
             }
         });
-
-        // if (Backend.memr.get(10) != null) {
-        // Memoir result = Backend.memr.get(10);
-        // // Récupérer le tableau de bytes depuis la colonne PDF
-        // byte[] pdfBytes = result.getPdfBytes();
-
-        // // Convertir le tableau de bytes en un fichier PDF
-        // // try (FileOutputStream fos = new
-        // FileOutputStream(result.getTitre()+".pdf");
-        // // Document document = new Document()) {
-        // // // Écrire le tableau de bytes dans le fichier PDF
-        // // PdfWriter.getInstance(document, fos);
-        // // document.open();
-        // // document.add(pdfBytes);
-        // // }
-        // System.out.println("Fichier PDF créé avec succès !");
-        // } else {
-        // System.out.println("Aucun résultat trouvé.");
-        // }
 
         JButton previousButton = new JButton("Previous");
         previousButton.addActionListener(new ActionListener() {
