@@ -6,6 +6,7 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.lang.ProcessHandle.Info;
 import java.text.ParseException;
 
 //import com.itexxtpdf.kernel.pdf.PdfDocument;
@@ -318,7 +319,7 @@ public class Project {
                             "Incomplete Data",
                             JOptionPane.WARNING_MESSAGE);
                 } else {
-                    // à modifier apres l'ajoute de bd
+
                     Backend m = new Backend();
                     int i = 0;
                     for (Enseignant en : Backend.ens) {
@@ -544,6 +545,87 @@ public class Project {
         return dateField;
     }
 
+    private JPanel createDetailPanel(Memoir memoir, Enseignant enseignant) {
+        JPanel detailPanel = new JPanel(new GridLayout(2, 1));
+
+        JPanel textfield = new JPanel(new GridLayout(6, 1));
+
+        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        titlePanel.add(new JLabel("Title:"));
+        JTextField titles = new JTextField(memoir.getTitre());
+        titlePanel.add(titles);
+        textfield.add(titlePanel);
+
+        JPanel authorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        authorPanel.add(new JLabel("Auteur:"));
+        JTextField author = new JTextField(memoir.getAuteur());
+        authorPanel.add(author);
+        textfield.add(authorPanel);
+
+        JPanel cotePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        cotePanel.add(new JLabel("Cote:"));
+        JTextField cote = new JTextField(memoir.getCote());
+        cotePanel.add(cote);
+        textfield.add(cotePanel);
+
+        JPanel yearsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        yearsPanel.add(new JLabel("Year:"));
+        JTextField years = new JTextField(String.valueOf(memoir.getAnnes()));
+        yearsPanel.add(years);
+        textfield.add(yearsPanel);
+
+        JPanel niveauPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        niveauPanel.add(new JLabel("Level:"));
+        JTextField niveau = new JTextField(memoir.getNiveau());
+        niveauPanel.add(niveau);
+        textfield.add(niveauPanel);
+
+        JPanel resumerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        resumerPanel.add(new JLabel("Resumer:"));
+        JTextField resumerss = new JTextField(memoir.getResumer());
+        resumerPanel.add(resumerss);
+        textfield.add(resumerPanel);
+
+        JPanel buttons = new JPanel();
+
+        JButton sup = new JButton("Sup");
+        JButton modif = new JButton("Modify");
+        buttons.add(sup);
+        buttons.add(modif);
+
+        sup.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                detailPanel.removeAll();
+                JLabel removed = new JLabel("These deleted");
+                detailPanel.add(removed);
+                detailPanel.revalidate();
+                detailPanel.repaint();
+            }
+        });
+
+        modif.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Add modifications
+                detailPanel.revalidate();
+                detailPanel.repaint();
+                JOptionPane.showMessageDialog(detailPanel, "Modification successful",
+                        "Change successful",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
+
+        // if (!isAdminConnected) {
+        // sup.setEnabled(false);
+        // modif.setEnabled(false);
+        // }
+        detailPanel.add(textfield);
+        detailPanel.add(buttons);
+
+        return detailPanel;
+    }
+
     private JPanel LecturePanel() {
         JPanel lecturePanel = new JPanel(new BorderLayout());
         JPanel lecturep = new JPanel(new FlowLayout());
@@ -588,102 +670,73 @@ public class Project {
         lecturep.add(combo);
 
         lecturePanel.add(lecturep);
-        String[] listeMemoir = new String[Backend.memr.size()];
-        int j = 0;
 
-        Enseignant en = null;
         for (Memoir mrm : Backend.memr) {
+            Enseignant[] en = { null }; // Declare as final array
+
             for (Enseignant personne : Backend.ens) {
                 if (personne.getId() == mrm.getId_ens()) {
-                    en = personne;
+                    en[0] = personne;
                     break;
                 }
             }
-            JLabel label = new JLabel(
-                    "<html> <ul> <li> " + mrm.getTitre() + "(" + en.getNom() + "," + mrm.getAnnes() + ","
-                            + mrm.getNiveau() + ")  <font color='red' > Resume </font> </li> </ul> </html>");
-            listeMemoir[j] = label.getText();
-            j++;
+
+            JPanel mem = new JPanel();
+
+            JLabel info = new JLabel(
+                    "<html> <ul> <li> " + mrm.getTitre() + "(" + en[0].getNom() + "," + mrm.getAnnes() + ","
+                            + mrm.getNiveau()
+                            + ") </li> </ul> </html>");
+            JButton click = new JButton("MORE");
+
+            mem.add(info);
+            mem.add(click);
+            lecturep.add(mem);
+
+            JPanel detailPanel = createDetailPanel(mrm, en[0]);
+
+            click.addActionListener(e -> {
+                // Replace the existing panel with the detailed panel
+                lecturep.removeAll();
+                lecturep.add(detailPanel);
+                lecturep.revalidate();
+                lecturep.repaint();
+            });
         }
-        moduleNames = listeMemoir;
 
-        JPanel modulesPanel = new JPanel(new GridLayout(MODULES_PER_PAGE, 1, 0, 0));
-        modulesPanel.setBorder(BorderFactory.createEmptyBorder(40, 0, 0, 0));
-
-        for (String label : listeMemoir) {
-            JLabel moduleLabel = new JLabel(label);
-            modulesPanel.add(moduleLabel);
-        }
-
-        lecturep.add(modulesPanel);
-        loadModules(modulesPanel, currentPage);
-
-        JButton nextButton = new JButton("Next");
-        nextButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                currentPage++;
-                loadModules(modulesPanel, currentPage);
-            }
-        });
-
-        JButton previousButton = new JButton("Previous");
-        previousButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (currentPage > 0) {
-                    currentPage--;
-                    loadModules(modulesPanel, currentPage);
-                }
-            }
-        });
-
-        JPanel navigationPanel = new JPanel(new FlowLayout());
-        navigationPanel.add(previousButton);
-        navigationPanel.add(nextButton);
-        lecturePanel.add(navigationPanel, BorderLayout.SOUTH);
-
-        yearComboBox.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED) {
-                    filterModulesByYear((Integer) yearComboBox.getSelectedItem(), modulesPanel);
-                }
-            }
-        });
         return lecturePanel;
     }
 
-    private void filterModulesByYear(Integer selectedYear, JPanel modulesPanel) {
-        modulesPanel.removeAll();
+    // private void filterModulesByYear(Integer selectedYear, JPanel modulesPanel) {
+    // modulesPanel.removeAll();
 
-        for (String moduleName : moduleNames) {
-            if (moduleName.contains(selectedYear.toString())) {
-                JLabel moduleLabel = new JLabel(moduleName);
-                modulesPanel.add(moduleLabel);
-            }
-        }
+    // for (String moduleName : moduleNames) {
+    // if (moduleName.contains(selectedYear.toString())) {
+    // JLabel moduleLabel = new JLabel(moduleName);
+    // modulesPanel.add(moduleLabel);
+    // }
+    // }
 
-        modulesPanel.revalidate();
-        modulesPanel.repaint();
-    }
+    // modulesPanel.revalidate();
+    // modulesPanel.repaint();
+    // }
 
-    private void loadModules(JPanel modulesPanel, int page) {
-        modulesPanel.removeAll();
-        int startIdx = page * MODULES_PER_PAGE;
-        int endIdx = Math.min(startIdx + MODULES_PER_PAGE, moduleNames.length);
+    // private void loadModules(JPanel modulesPanel, int page) {
+    // modulesPanel.removeAll();
+    // int startIdx = page * MODULES_PER_PAGE;
+    // int endIdx = Math.min(startIdx + MODULES_PER_PAGE, moduleNames.length);
 
-        for (int i = startIdx; i < endIdx; i++) {
-            JLabel moduleLabel = new JLabel(moduleNames[i]);
-            moduleLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-            moduleLabel.setFont(new Font("Roboto", Font.PLAIN, 14));
-            moduleLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            modulesPanel.add(moduleLabel);
-        }
+    // for (int i = startIdx; i < endIdx; i++) {
+    // JLabel moduleLabel = new JLabel(moduleNames[i]);
+    // moduleLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+    // moduleLabel.setFont(new Font("Roboto", Font.PLAIN, 14));
+    // moduleLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+    // modulesPanel.add(moduleLabel);
+    // }
 
-        modulesPanel.revalidate();
-        modulesPanel.repaint();
-    }
+    // modulesPanel.revalidate();
+    // modulesPanel.repaint();
+    // }
 
     private JPanel FieldPane(String label, JComponent component) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
