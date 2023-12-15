@@ -1,12 +1,10 @@
 import javax.swing.*;
-import javax.swing.text.Document;
 import javax.swing.text.MaskFormatter;
 import java.awt.*;
+import java.awt.Desktop.Action;
 import java.awt.event.*;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.lang.ProcessHandle.Info;
 import java.text.ParseException;
 
 //import com.itexxtpdf.kernel.pdf.PdfDocument;
@@ -20,12 +18,9 @@ public class Project {
     private static JPanel framepanel;
     private static JPanel leftPanel;
     private static JPanel createpanel;
-    private static final int MODULES_PER_PAGE = 5;
-    private int currentPage = 0;
-    private String[] moduleNames;
 
     public Project() {
-        // N3mroo Lbackend
+
         Backend bk = new Backend();
 
         JFrame frame = new JFrame();
@@ -60,13 +55,13 @@ public class Project {
         admin.setFont(new Font("Roboto", Font.BOLD, 15));
         admin.setBorder(BorderFactory.createEmptyBorder(40, 30, 10, 10));
 
-        create = new JLabel("Theses creation", createIcon, JLabel.LEFT);
+        create = new JLabel("Thesis creation", createIcon, JLabel.LEFT);
         create.setFont(new Font("Roboto", Font.BOLD, 15));
         create.setForeground(Color.WHITE);
         create.setBorder(BorderFactory.createEmptyBorder(30, 30, 10, 10));
         create.setVisible(isAdminConnected);
 
-        proffe = new JLabel("Framer management", createIcon, JLabel.LEFT);
+        proffe = new JLabel("Professor management", createIcon, JLabel.LEFT);
         proffe.setFont(new Font("Roboto", Font.BOLD, 15));
         proffe.setForeground(Color.WHITE);
         proffe.setBorder(BorderFactory.createEmptyBorder(30, 30, 10, 10));
@@ -183,51 +178,21 @@ public class Project {
 
         searchp.add(searchBar);
         searchp.add(searchButton);
-        String[] moduleNames = {
-                "<html> <ul> <li> Gestion de stock de magasin  (Mokrani, code)   <font color='red' > RESUMER or PDF  </font> </li> </ul> </html>",
-                "<html> <ul> <li>  Gestion de stock de magasin (gaceb, code)  <font color='red' > RESUMER or PDF </font> </li> </ul> </html>",
-                "<html> <ul> <li> application web pour une societe (lounas, code) <font color='red' > RESUMER or PDF </font> </li> </ul></html>",
-                "<html> <ul> <li> application mobile pour un medecin (mokrani, code)  <font color='red' > RESUMER or PDF </font> </li> </ul>  </html>",
-                "<html>  <ul> <li>implemenation d'ai (rezoug, code)  <font color='red' > RESUMER or PDF </font> </li> </ul> </html>",
-                "<html> <ul> <li> Calcul matriciel complexe  (mokrani, code)  <font color='red' > RESUMER or PDF </font> </li> </ul> </html>",
-                "<html>  <ul> <li>Un éditeur graphique pour les RDP (mokrani, code)  <font color='red' > RESUMER or PDF </font> </li> </ul>  </html>",
-                "<html> <ul> <li> Comment prédire avec des modèles de régression (mokrani, code)  <font color='red' > RESUMER or PDF </font> </li> </ul> </html>",
-                "<html> <ul> <li> Calcul matriciel complexe  (mokrani, code)  <font color='red' > RESUMER or PDF </font> </li> </ul> </html>",
-                "<html>  <ul> <li>Un éditeur graphique pour les RDP (mokrani, code)  <font color='red' > RESUMER or PDF </font> </li> </ul>  </html>",
-                "<html> <ul> <li> Comment prédire avec des modèles de régression (mokrani, code)  <font color='red' > RESUMER or PDF </font> </li> </ul> </html>", };
-
         searchPanel.add(searchp, BorderLayout.CENTER);
         JPanel result = new JPanel(new GridLayout(15, 1, 100, 10));
-
+        result.removeAll();
+        searchp.add(result, BorderLayout.CENTER);
+        searchp.revalidate();
+        searchp.repaint();
         searchButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String enteredWord = searchBar.getText().trim().toLowerCase();
-                result.removeAll();
-                boolean matchFound = false;
-
-                for (String moduleName : moduleNames) {
-                    if (moduleName.toLowerCase().contains(enteredWord)) {
-                        JLabel moduleLabel = new JLabel(moduleName);
-                        moduleLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-                        moduleLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                        moduleLabel.setFont(new Font("Roboto", Font.PLAIN, 16));
-                        result.setBorder(BorderFactory.createEmptyBorder(40, 0, 0, 0));
-                        result.add(moduleLabel);
-                        matchFound = true;
-                    }
-                }
-
-                if (!matchFound) {
-                    JOptionPane.showMessageDialog(null, "memoire n'existe pas.", "Information",
-                            JOptionPane.INFORMATION_MESSAGE);
-                }
-                searchp.add(result, BorderLayout.CENTER);
+                rechercheMemoir(enteredWord, enteredWord, enteredWord, result, null);
                 searchp.revalidate();
                 searchp.repaint();
             }
         });
-
         return searchPanel;
     }
 
@@ -238,7 +203,7 @@ public class Project {
         adminp.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
         createpanel.setBackground(Color.WHITE);
 
-        JLabel label2 = new JLabel("Here you can find the theses archives ");
+        JLabel label2 = new JLabel("Here you can find the thesis archives ");
         label2.setFont(new Font("Roboto", Font.ITALIC, 20));
         label2.setBorder(BorderFactory.createEmptyBorder(5, 140, 5, 0));
 
@@ -290,7 +255,7 @@ public class Project {
         });
 
         JLabel label3 = new JLabel(
-                "<html> <font size='8'>Theses creation</font> <br/> You can add theses by entering the title, Framerr, date of theses, code, and resume. </html>");
+                "<html> <font size='8'>Thesis creation</font> <br/> You can add thesis by entering the title, professor, date of thesis, code, and resume. </html>");
         label3.setForeground(Color.WHITE);
         label3.setBorder(BorderFactory.createEmptyBorder(25, 36, 25, 10));
         label3.setOpaque(true);
@@ -351,7 +316,7 @@ public class Project {
 
         adminp.add(FieldPanel("Title:", title));
         adminp.add(FieldPanel("Code:", code));
-        adminp.add(FieldPanel("Frame:", Framer));
+        adminp.add(FieldPanel("professor:", Framer));
         adminp.add(FieldPanel("Date :", dateField));
         adminp.add(FieldPanel("Level", niveau));
         adminp.add(FieldPanel("Auteur:", auteur));
@@ -370,7 +335,7 @@ public class Project {
         adminp.setBorder(BorderFactory.createEmptyBorder(55, 0, 5, 0));
         framepanel.setBackground(Color.WHITE);
 
-        JLabel label2 = new JLabel("Here you can find the theses archives ");
+        JLabel label2 = new JLabel("Here you can find the thesis archives ");
         label2.setFont(new Font("Roboto", Font.ITALIC, 20));
         label2.setBorder(BorderFactory.createEmptyBorder(5, 140, 5, 0));
 
@@ -379,7 +344,7 @@ public class Project {
         JTextField specialite = new JTextField(40);
 
         JLabel label3 = new JLabel(
-                "<html> <font size='8'>Framer management</font> <br/> You can add framer by entering his information, name, field ... <br/> you can remove or modify the information of the framer </html>");
+                "<html> <font size='8'>Professor management</font> <br/> You can add professor by entering his information, name, field ... <br/> you can remove or modify the information of the professor </html>");
         label3.setForeground(Color.WHITE);
         label3.setBorder(BorderFactory.createEmptyBorder(25, 36, 25, 10));
         label3.setOpaque(true);
@@ -409,7 +374,7 @@ public class Project {
                 Firstname.setText("");
                 Lastname.setText("");
                 specialite.setText("");
-                JOptionPane.showMessageDialog(framepanel, "framer added",
+                JOptionPane.showMessageDialog(framepanel, "professor added",
                         "added succesfully",
                         JOptionPane.INFORMATION_MESSAGE);
             }
@@ -429,17 +394,23 @@ public class Project {
 
         for (Enseignant enseignantInfo : listeNoms) {
 
-            JTextField nomField = new JTextField("Nom: " + enseignantInfo.getNom());
-            JTextField prenomField = new JTextField("Prenom: " + enseignantInfo.getPrenom());
-            JTextField specialiteField = new JTextField("Specialite: " + enseignantInfo.getSpecialite());
+            JTextField nomField = new JTextField(enseignantInfo.getNom());
+            nomField.setPreferredSize(new Dimension(110, 50));
+            JTextField prenomField = new JTextField(enseignantInfo.getPrenom());
+            prenomField.setPreferredSize(new Dimension(80, 50));
+            JTextField specialiteField = new JTextField(enseignantInfo.getSpecialite());
+            specialiteField.setPreferredSize(new Dimension(240, 50));
             JButton sup = new JButton("Remove");
+            sup.setPreferredSize(new Dimension(70, 50));
             JButton modify = new JButton("Modify");
-
-            labelPanel.add(nomField);
-            labelPanel.add(prenomField);
-            labelPanel.add(specialiteField);
-            labelPanel.add(sup);
-            labelPanel.add(modify);
+            modify.setPreferredSize(new Dimension(70, 50));
+            JPanel info = new JPanel();
+            info.add(nomField);
+            info.add(prenomField);
+            info.add(specialiteField);
+            info.add(sup);
+            info.add(modify);
+            labelPanel.add(info);
             sup.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -447,12 +418,8 @@ public class Project {
                     b.supprimerENS(enseignantInfo.getId());
 
                     SwingUtilities.invokeLater(() -> {
-
-                        labelPanel.remove(nomField);
-                        labelPanel.remove(prenomField);
-                        labelPanel.remove(specialiteField);
-                        labelPanel.remove(sup);
-                        labelPanel.remove(modify);
+                        info.removeAll();
+                        labelPanel.remove(info);
                         framepanel.revalidate();
                         framepanel.repaint();
                     });
@@ -462,9 +429,9 @@ public class Project {
                 @Override
                 public void actionPerformed(ActionEvent e) {
 
-                    enseignantInfo.setNom(nomField.getText().substring(5));
-                    enseignantInfo.setPrenom(prenomField.getText().substring(8));
-                    enseignantInfo.setSpecialite(specialiteField.getText().substring(12));
+                    enseignantInfo.setNom(nomField.getText());
+                    enseignantInfo.setPrenom(prenomField.getText());
+                    enseignantInfo.setSpecialite(specialiteField.getText());
                     Backend b = new Backend();
                     b.updateENS(enseignantInfo.getId(), enseignantInfo.getSpecialite(), enseignantInfo.getNom(),
                             enseignantInfo.getPrenom());
@@ -492,7 +459,7 @@ public class Project {
             }
         });
 
-        JButton framers = new JButton("List of existing framers");
+        JButton framers = new JButton("List of existing professors");
         framers.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -545,46 +512,66 @@ public class Project {
         return dateField;
     }
 
-    private JPanel createDetailPanel(Memoir memoir, Enseignant enseignant) {
-        JPanel detailPanel = new JPanel(new GridLayout(2, 1));
+    private static JPanel createDetailPanel(Memoir memoir, Enseignant enseignant) {
+        JPanel detailPanel = new JPanel(new GridLayout(3, 1));
 
-        JPanel textfield = new JPanel(new GridLayout(6, 1));
+        JPanel textfield = new JPanel(new GridLayout(4, 2));
 
         JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         titlePanel.add(new JLabel("Title:"));
         JTextField titles = new JTextField(memoir.getTitre());
+        titles.setPreferredSize(new Dimension(150, 40));
         titlePanel.add(titles);
         textfield.add(titlePanel);
 
         JPanel authorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         authorPanel.add(new JLabel("Auteur:"));
         JTextField author = new JTextField(memoir.getAuteur());
+        author.setPreferredSize(new Dimension(250, 40));
         authorPanel.add(author);
         textfield.add(authorPanel);
 
         JPanel cotePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         cotePanel.add(new JLabel("Cote:"));
         JTextField cote = new JTextField(memoir.getCote());
+        cote.setPreferredSize(new Dimension(150, 40));
         cotePanel.add(cote);
         textfield.add(cotePanel);
 
         JPanel yearsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         yearsPanel.add(new JLabel("Year:"));
         JTextField years = new JTextField(String.valueOf(memoir.getAnnes()));
+        years.setPreferredSize(new Dimension(150, 40));
         yearsPanel.add(years);
         textfield.add(yearsPanel);
 
         JPanel niveauPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         niveauPanel.add(new JLabel("Level:"));
         JTextField niveau = new JTextField(memoir.getNiveau());
+        niveau.setPreferredSize(new Dimension(150, 40));
         niveauPanel.add(niveau);
         textfield.add(niveauPanel);
 
-        JPanel resumerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        resumerPanel.add(new JLabel("Resumer:"));
-        JTextField resumerss = new JTextField(memoir.getResumer());
+        JPanel enseignantPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        enseignantPanel.add(new JLabel("professor:"));
+        JTextField enseignantLabel = new JTextField(enseignant.getNom());
+        enseignantLabel.setPreferredSize(new Dimension(150, 40));
+        enseignantPanel.add(enseignantLabel);
+        textfield.add(enseignantPanel);
+
+        JPanel resumerPanel = new JPanel(new BorderLayout());
+        resumerPanel.add(new JLabel("Resumer:"), BorderLayout.NORTH);
+
+        JTextArea resumerss = new JTextArea(memoir.getResumer());
+        resumerss.setLineWrap(true);
+        resumerss.setWrapStyleWord(true);
+        resumerss.setColumns(10);
+
+        JScrollPane resumerScrollPane = new JScrollPane(resumerss);
+        resumerScrollPane.setPreferredSize(new Dimension(300, 150));
+
+        resumerPanel.add(resumerScrollPane, BorderLayout.CENTER);
         resumerPanel.add(resumerss);
-        textfield.add(resumerPanel);
 
         JPanel buttons = new JPanel();
 
@@ -594,8 +581,11 @@ public class Project {
         buttons.add(modif);
 
         sup.addActionListener(new ActionListener() {
+
             @Override
             public void actionPerformed(ActionEvent e) {
+                Backend bs = new Backend();
+                bs.supprimerMemoir(memoir.getId_mem());
                 detailPanel.removeAll();
                 JLabel removed = new JLabel("These deleted");
                 detailPanel.add(removed);
@@ -607,20 +597,26 @@ public class Project {
         modif.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Add modifications
+                Memoir mr = new Memoir(memoir.getId_mem(), cote.getText(), titles.getText(), author.getText(),
+                        Integer.parseInt(years.getText()), resumerss.getText(), memoir.getId_ens(),
+                        memoir.getPdfBytes(), niveau.getText());
+                Backend bkn = new Backend();
+                bkn.modifierMemoir(mr);
+                JOptionPane.showMessageDialog(framepanel, "thesis modified",
+                        "modified succesfully",
+                        JOptionPane.INFORMATION_MESSAGE);
+
                 detailPanel.revalidate();
                 detailPanel.repaint();
-                JOptionPane.showMessageDialog(detailPanel, "Modification successful",
-                        "Change successful",
-                        JOptionPane.INFORMATION_MESSAGE);
             }
-        });
 
-        // if (!isAdminConnected) {
-        // sup.setEnabled(false);
-        // modif.setEnabled(false);
-        // }
+        });
+        if (isAdminConnected = false) {
+            sup.setEnabled(false);
+            modif.setEnabled(false);
+        }
         detailPanel.add(textfield);
+        detailPanel.add(resumerPanel);
         detailPanel.add(buttons);
 
         return detailPanel;
@@ -643,16 +639,18 @@ public class Project {
         label3.setOpaque(true);
         label3.setBackground(new Color(51, 40, 102));
 
-        String[] listeNoms = new String[Backend.ens.size()];
-        int i = 0;
+        String[] listeNoms = new String[Backend.ens.size() + 1];
+        int i = 1;
+        listeNoms[0] = "";
         for (Enseignant enseignant : Backend.ens) {
             listeNoms[i] = (enseignant.getNom());
             i++;
         }
         JComboBox<String> framerComboBox = new JComboBox<>(listeNoms);
-        JComboBox<Integer> yearComboBox = new JComboBox<>(new Integer[] { null, 2000, 2001, 2002, 2003, 2004, 2005,
-                2006,
-                2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023 });
+        JComboBox<String> yearComboBox = new JComboBox<>(new String[] { "", "2000",
+                "2001", "2002", "2003", "2004", "2005", "2006", "2007", "2008",
+                "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016",
+                "2017", "2018", "2019", "2020", "2021", "2022", "2023" });
 
         JComboBox<String> levelComboBox = new JComboBox<>(new String[] { "", "licence", "master", "ingeniorat" });
 
@@ -663,16 +661,49 @@ public class Project {
         lecturePanel.add(top, BorderLayout.PAGE_START);
         JPanel combo = new JPanel(new GridLayout(2, 2, 1, 1));
 
-        combo.add(FieldPane("Framer:", framerComboBox));
+        combo.add(FieldPane("Professor:", framerComboBox));
         combo.add(FieldPane("Year:", yearComboBox));
         combo.add(FieldPane("Level:", levelComboBox));
 
-        lecturep.add(combo);
+        rechercheMemoir(levelComboBox.getSelectedItem().toString(),
+                framerComboBox.getSelectedItem().toString(),
+                yearComboBox.getSelectedItem().toString(), lecturep, combo);
 
         lecturePanel.add(lecturep);
+        yearComboBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                rechercheMemoir(levelComboBox.getSelectedItem().toString(),
+                        framerComboBox.getSelectedItem().toString(),
+                        yearComboBox.getSelectedItem().toString(), lecturep, combo);
+            }
+        });
 
+        framerComboBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                rechercheMemoir(levelComboBox.getSelectedItem().toString(),
+                        framerComboBox.getSelectedItem().toString(),
+                        yearComboBox.getSelectedItem().toString(), lecturep, combo);
+            }
+        });
+        levelComboBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                rechercheMemoir(levelComboBox.getSelectedItem().toString(),
+                        framerComboBox.getSelectedItem().toString(),
+                        yearComboBox.getSelectedItem().toString(), lecturep, combo);
+            }
+        });
+        return lecturePanel;
+    }
+
+    public static void rechercheMemoir(String lvl, String nv, String yrs, JPanel lecturep, JPanel combo) {
+        lecturep.removeAll();
+        if (combo != null)
+            lecturep.add(combo);
         for (Memoir mrm : Backend.memr) {
-            Enseignant[] en = { null }; // Declare as final array
+            Enseignant[] en = { null };
 
             for (Enseignant personne : Backend.ens) {
                 if (personne.getId() == mrm.getId_ens()) {
@@ -681,62 +712,35 @@ public class Project {
                 }
             }
 
-            JPanel mem = new JPanel();
+            if (en[0] != null) {
+                JLabel info = new JLabel(
+                        "<html> <ul> <li> " + mrm.getTitre() + "(" + en[0].getNom() + "," + mrm.getAnnes() + ","
+                                + mrm.getNiveau()
+                                + ") </li> </ul> </html>");
 
-            JLabel info = new JLabel(
-                    "<html> <ul> <li> " + mrm.getTitre() + "(" + en[0].getNom() + "," + mrm.getAnnes() + ","
-                            + mrm.getNiveau()
-                            + ") </li> </ul> </html>");
-            JButton click = new JButton("MORE");
+                String str = info.getText();
+                if (str.contains(lvl) && str.contains(nv) && str.contains(yrs)) {
+                    JButton click = new JButton("MORE");
+                    JPanel mem = new JPanel();
+                    mem.add(info);
+                    mem.add(click);
+                    lecturep.add(mem);
 
-            mem.add(info);
-            mem.add(click);
-            lecturep.add(mem);
+                    JPanel detailPanel = createDetailPanel(mrm, en[0]);
 
-            JPanel detailPanel = createDetailPanel(mrm, en[0]);
-
-            click.addActionListener(e -> {
-                // Replace the existing panel with the detailed panel
-                lecturep.removeAll();
-                lecturep.add(detailPanel);
-                lecturep.revalidate();
-                lecturep.repaint();
-            });
+                    click.addActionListener(e -> {
+                        lecturep.removeAll();
+                        lecturep.add(detailPanel);
+                        lecturep.revalidate();
+                        lecturep.repaint();
+                    });
+                }
+            }
         }
 
-        return lecturePanel;
+        lecturep.revalidate();
+        lecturep.repaint();
     }
-
-    // private void filterModulesByYear(Integer selectedYear, JPanel modulesPanel) {
-    // modulesPanel.removeAll();
-
-    // for (String moduleName : moduleNames) {
-    // if (moduleName.contains(selectedYear.toString())) {
-    // JLabel moduleLabel = new JLabel(moduleName);
-    // modulesPanel.add(moduleLabel);
-    // }
-    // }
-
-    // modulesPanel.revalidate();
-    // modulesPanel.repaint();
-    // }
-
-    // private void loadModules(JPanel modulesPanel, int page) {
-    // modulesPanel.removeAll();
-    // int startIdx = page * MODULES_PER_PAGE;
-    // int endIdx = Math.min(startIdx + MODULES_PER_PAGE, moduleNames.length);
-
-    // for (int i = startIdx; i < endIdx; i++) {
-    // JLabel moduleLabel = new JLabel(moduleNames[i]);
-    // moduleLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-    // moduleLabel.setFont(new Font("Roboto", Font.PLAIN, 14));
-    // moduleLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-    // modulesPanel.add(moduleLabel);
-    // }
-
-    // modulesPanel.revalidate();
-    // modulesPanel.repaint();
-    // }
 
     private JPanel FieldPane(String label, JComponent component) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -753,7 +757,7 @@ public class Project {
         adminp.setBorder(BorderFactory.createEmptyBorder(55, 0, 5, 0));
         adminpanel.setBackground(Color.WHITE);
 
-        JLabel label2 = new JLabel("Here you can find the theses archives ");
+        JLabel label2 = new JLabel("Here you can find the thesis archives ");
         label2.setFont(new Font("Roboto", Font.ITALIC, 20));
         label2.setBorder(BorderFactory.createEmptyBorder(5, 140, 5, 0));
 
@@ -786,10 +790,13 @@ public class Project {
         connect.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String username = log.getText();
+                String enteredUsername = log.getText();
                 String enteredPassword = new String(password.getPassword());
 
-                if (username.equals("soundous") && enteredPassword.equals("snds")) {
+                Backend backend = new Backend();
+                boolean isValidCredentials = backend.checkCredentials(enteredUsername, enteredPassword);
+
+                if (isValidCredentials) {
                     isAdminConnected = true;
                     SwingUtilities.invokeLater(() -> {
                         create.setVisible(true);

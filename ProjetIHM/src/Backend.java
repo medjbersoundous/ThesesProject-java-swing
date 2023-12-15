@@ -9,12 +9,15 @@ import java.sql.SQLException;
 public class Backend {
     public static List<Enseignant> ens = new ArrayList<>();
     public static List<Enseignant> filterens = new ArrayList<>();
+    private List<Admin> admins = new ArrayList<>();
     public static List<Memoir> memr = new ArrayList<>();
     public static List<Memoir> filtermemr = new ArrayList<>();
 
     public Backend() {
         AllMemoir();
         AllEns();
+        getAllAdmins();
+
     }
 
     Connection conn() {
@@ -212,7 +215,7 @@ public class Backend {
         try {
             Connection connection = conn();
 
-            String query = "UPDATE Memoir SET cote = ?, titre = ?, auteur = ?, annees = ?, resumer = ?, id_ens = ?, pdff= ? WHERE id_mem = ?";
+            String query = "UPDATE Memoir SET cote = ?, titre = ?, auteur = ?, annes = ?, resumer = ?, id_ens = ?, pdff = ?, niveau = ? WHERE id_mem = ?";
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 preparedStatement.setString(1, livre.getCote());
                 preparedStatement.setString(2, livre.getTitre());
@@ -220,13 +223,14 @@ public class Backend {
                 preparedStatement.setInt(4, livre.getAnnes());
                 preparedStatement.setString(5, livre.getResumer());
                 preparedStatement.setInt(6, livre.getId_ens());
-                preparedStatement.setInt(7, livre.getId_mem());
-                preparedStatement.setBytes(8, livre.getPdfBytes());
-
+                preparedStatement.setBytes(7, livre.getPdfBytes());
+                preparedStatement.setString(8, livre.getNiveau());
+                preparedStatement.setInt(9, livre.getId_mem()); // Corrected parameter index
                 preparedStatement.executeUpdate();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -282,6 +286,45 @@ public class Backend {
         }
 
         return resultats;
+    }
+
+    // $$$$$$$$$$$$$$$$$$$$$$$Admin$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+    public List<Admin> getAllAdmins() {
+
+        String sql = "SELECT * FROM admin";
+        try (Connection connection = conn();
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(sql)) {
+
+            while (resultSet.next()) {
+                Admin admin = new Admin(
+                        resultSet.getInt("id_adm"),
+                        resultSet.getString("username"),
+                        resultSet.getString("password"));
+                admins.add(admin);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error while retrieving admins: " + e.getMessage());
+        }
+
+        return admins;
+    }
+
+    public boolean checkCredentials(String enteredUsername, String enteredPassword) {
+        String sql = "SELECT * FROM Admin WHERE username = ? AND password = ?";
+        try (Connection connection = conn();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setString(1, enteredUsername);
+            preparedStatement.setString(2, enteredPassword);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                return resultSet.next();
+            }
+        } catch (SQLException e) {
+            System.out.println("Error while checking credentials: " + e.getMessage());
+            return false;
+        }
     }
 
 }
